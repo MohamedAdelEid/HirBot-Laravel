@@ -2,5 +2,5 @@
 
 return [
     App\Providers\AppServiceProvider::class,
-    // App\Modules\SocialMedia\Infrastructure\Providers\SocialMediaServiceProvider::class
+    App\Modules\SocialMedia\Providers\SocialMediaServiceProvider::class
 ];

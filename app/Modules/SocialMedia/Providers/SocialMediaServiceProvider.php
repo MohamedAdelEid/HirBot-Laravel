@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\SocialMedia\Infrastructure\Providers;
+namespace App\Modules\SocialMedia\Providers;
 
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;

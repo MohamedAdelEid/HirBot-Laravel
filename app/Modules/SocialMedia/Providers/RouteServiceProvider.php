@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\SocialMedia\Infrastructure\Providers;
+namespace App\Modules\SocialMedia\Providers;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;

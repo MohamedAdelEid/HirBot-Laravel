@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\SocialMedia\Infrastructure\Providers;
+namespace App\Modules\SocialMedia\Providers;
 
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
