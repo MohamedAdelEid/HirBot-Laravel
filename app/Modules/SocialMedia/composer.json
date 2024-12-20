@@ -10,7 +10,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "App\\Modules\\SocialMedia\\Infrastructure\\SocialMediaServiceProvider"
+                "App\\Modules\\SocialMedia\\Infrastructure\\Providers\\SocialMediaServiceProvider"
             ],
             "aliases": {
             }
