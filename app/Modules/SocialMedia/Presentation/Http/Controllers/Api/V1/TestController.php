@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\SocialMedia\Presentation\Http\Controllers\Api\V1;
+namespace app\Modules\SocialMedia\Presentation\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Modules\SocialMedia\Domain\Interfaces\Services\TestServiceInterface;

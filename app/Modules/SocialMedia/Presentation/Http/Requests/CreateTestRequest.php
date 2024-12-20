@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\SocialMedia\Presentation\Http\Requests;
+namespace app\Modules\SocialMedia\Presentation\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 

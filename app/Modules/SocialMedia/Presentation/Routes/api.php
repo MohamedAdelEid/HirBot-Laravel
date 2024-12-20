@@ -1,7 +1,7 @@
 <?php
 
-use App\Modules\SocialMedia\Presentation\Http\Controllers\Api\V1\TestController;
 use Illuminate\Support\Facades\Route;
+use App\Modules\SocialMedia\Presentation\Http\Controllers\SocialMediaController;
 
 /*
  *--------------------------------------------------------------------------
@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\Route;
  *
 */
 
-Route::group([],function () {
-    Route::post('/test', [TestController::class, 'create']);
-    Route::get('/test', [TestController::class, 'index']);
+Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
+    Route::apiResource('socialmedia', SocialMediaController::class)->names('socialmedia');
 });

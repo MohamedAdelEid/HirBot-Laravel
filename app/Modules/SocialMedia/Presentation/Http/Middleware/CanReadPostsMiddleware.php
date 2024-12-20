@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\SocialMedia\Presentation\Http\Middleware;
+namespace app\Modules\SocialMedia\Presentation\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
