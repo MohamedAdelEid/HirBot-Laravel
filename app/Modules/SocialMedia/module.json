@@ -5,7 +5,7 @@
     "keywords": [],
     "priority": 0,
     "providers": [
-        "App\\Modules\\SocialMedia\\Providers\\SocialMediaServiceProvider"
+        "App\\Modules\\SocialMedia\\Infrastructure\\Providers\\SocialMediaServiceProvider"
     ],
     "files": []
 }
