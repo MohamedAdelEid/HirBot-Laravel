@@ -1,5 +1,6 @@
 <?php
 
+use app\Modules\SocialMedia\Presentation\Http\Controllers\Api\V1\TestController;
 use Illuminate\Support\Facades\Route;
 use App\Modules\SocialMedia\Presentation\Http\Controllers\SocialMediaController;
 
@@ -14,6 +15,7 @@ use App\Modules\SocialMedia\Presentation\Http\Controllers\SocialMediaController;
  *
 */
 
-Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::apiResource('socialmedia', SocialMediaController::class)->names('socialmedia');
+    Route::get('/',[TestController::class , 'index']);
 });
