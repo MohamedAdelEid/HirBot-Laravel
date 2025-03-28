@@ -1,8 +1,8 @@
 <?php
 
-use app\Modules\SocialMedia\Presentation\Http\Controllers\Api\V1\TestController;
+use App\Shared\Enums\UserRoleEnum;
 use Illuminate\Support\Facades\Route;
-use App\Modules\SocialMedia\Presentation\Http\Controllers\SocialMediaController;
+use App\Modules\SocialMedia\Presentation\Http\Controllers\Api\v1\PostController;
 
 /*
  *--------------------------------------------------------------------------
@@ -15,7 +15,12 @@ use App\Modules\SocialMedia\Presentation\Http\Controllers\SocialMediaController;
  *
 */
 
-Route::middleware(['auth'])->group(function () {
-    Route::apiResource('socialmedia', SocialMediaController::class)->names('socialmedia');
-    Route::get('/',[TestController::class , 'index']);
+Route::group([
+    'middleware' => ['auth', 'role:' . UserRoleEnum::COMPANY->value .',' . UserRoleEnum::USER->value ],
+], function () {
+
+    // Posts Resource Routes (Handles CRUD Operations)
+    Route::apiResource('posts', PostController::class);
+
 });
+

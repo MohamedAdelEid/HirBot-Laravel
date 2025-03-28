@@ -36,6 +36,9 @@ class SocialMediaServiceProvider extends ServiceProvider
     {
         $this->app->register(EventServiceProvider::class);
         $this->app->register(RouteServiceProvider::class);
+        $this->app->register(ServiceServiceProvider::class);
+        $this->app->register(RepositoryServiceProvider::class);
+        $this->app->register(FacadeServiceProvider::class);
     }
 
     /**

@@ -37,6 +37,15 @@ return [
             'throw' => false,
         ],
 
+        'azure' => [
+            'driver'    => 'azure',
+            'name'      => env('AZURE_STORAGE_NAME'),
+            'key'       => env('AZURE_STORAGE_KEY') ?? "MAojMV/ugkSzqN2ZACqOs6bVZRVDc1hbmxGfccP3E8rzpHGYTFNeCKI+4urvTeIc0Tfcm6vK4IMX+ASt04QX2w==",
+            'container' => env('AZURE_CONTAINER'),
+            'endpoint'  => env('AZURE_STORAGE_ENDPOINT'),
+            'url'       => env('AZURE_URL'),
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
