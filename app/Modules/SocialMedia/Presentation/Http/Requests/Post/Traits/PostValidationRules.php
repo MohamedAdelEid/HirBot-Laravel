@@ -40,10 +40,10 @@ trait PostValidationRules
                     'mimes:mp4,mov,avi',
                 ]),
             ],
-            'poll_data' => 'required_if:type,poll|array',
-            'poll_data.question' => 'required_if:type,poll|string',
-            'poll_data.options' => 'required_if:type,poll|array|min:2|max:4',
-            'poll_data.options.*' => 'required|string|max:100',
+            'poll_data' => 'nullable|array',
+            'poll_data.question' => 'required_with:poll_data.options|string|max:255',
+            'poll_data.options' => 'required_with:poll_data.question|array|min:2|max:4',
+            'poll_data.options.*.content' => 'required|string|max:100|distinct',
         ];
     }
 

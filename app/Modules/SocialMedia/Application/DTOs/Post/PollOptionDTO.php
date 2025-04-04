@@ -16,4 +16,12 @@ class PollOptionDTO
             voteCount: $data['vote_count'] ?? 0
         );
     }
+
+    public function toArray(): array
+    {
+        return [
+            'content' => $this->content,
+            'vote_count' => $this->voteCount
+        ];
+    }
 }

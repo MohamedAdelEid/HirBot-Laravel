@@ -16,7 +16,7 @@ class CreatePostDTO
      * @param PrivacyCommentsEnum $privacyComments
      * @param PostVisibilityEnum $visibility
      * @param array<MediaDTO>|null $media
-     * @param PollDTO|null $pollData
+     * @param array<PollDTO>|null $pollData
      */
     public function __construct(
         public readonly string $userId,
@@ -24,29 +24,22 @@ class CreatePostDTO
         public readonly PrivacyCommentsEnum $privacyComments,
         public readonly PostVisibilityEnum $visibility,
         public readonly ?array $media = null,
-        public readonly ?PollDTO $pollData = null
-    ) {
-        if ($this->media !== null) {
-            foreach ($this->media as $mediaItem) {
-                if (!$mediaItem instanceof MediaDTO) {
-                    throw new \InvalidArgumentException('Media items must be instances of MediaDTO');
-                }
-            }
-        }
-    }
+        public readonly ?array $pollData = null
+    ) {}
 
     public static function fromRequest(array $data): self
     {
         $mediaItems = [];
-        if (isset($data['media']) && is_array($data['media'])) {
+        if (isset($data['media'])) {
             foreach ($data['media'] as $mediaItem) {
                 $mediaItems[] = MediaDTO::fromArray($mediaItem);
             }
         }
 
-        $pollData = isset($data['poll_data'])
-            ? PollDTO::fromArray($data['poll_data'])
-            : null;
+        $pollItems = [];
+        if (isset($data['poll_data']) && is_array($data['poll_data'])) {
+            $pollItems[] = PollDTO::fromArray($data['poll_data']);
+        }
 
         return new self(
             userId: Auth::user()->Id,
@@ -54,7 +47,7 @@ class CreatePostDTO
             privacyComments: PrivacyCommentsEnum::from($data['privacy_comments']),
             visibility: PostVisibilityEnum::from($data['visibility']),
             media: !empty($mediaItems) ? $mediaItems : null,
-            pollData: $pollData
+            pollData: !empty($pollItems) ? $pollItems : null
         );
     }
 }

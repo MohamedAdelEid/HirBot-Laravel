@@ -6,7 +6,7 @@ class PollDTO
 {
     /**
      * @param string $question
-     * @param PollOptionDTO[] $options
+     * @param array<PollOptionDTO> $options
      */
     public function __construct(
         public readonly string $question,
@@ -17,7 +17,7 @@ class PollDTO
     {
         $options = array_map(
             fn(array $option) => PollOptionDTO::fromArray([
-                'content' => $option,
+                'content' => $option['content'],
                 'vote_count' => 0
             ]),
             $data['options']
@@ -27,5 +27,16 @@ class PollDTO
             question: $data['question'],
             options: $options
         );
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'question' => $this->question,
+            'options' => array_map(
+                fn(PollOptionDTO $option) => $option->toArray(),
+                $this->options
+            )
+        ];
     }
 }

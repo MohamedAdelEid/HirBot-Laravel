@@ -23,7 +23,7 @@ class PostRepository implements PostRepositoryInterface
                 'privacy_comments' => $post->getPrivacyComments(),
                 'visibility' => $post->getVisibility(),
             ]);
-            // dd($post->getMedia());
+
             if ($post->getMedia()) {
                 foreach ($post->getMedia() as $mediaDTO) {
                     $nameFile = Str::random(10);
@@ -31,7 +31,7 @@ class PostRepository implements PostRepositoryInterface
                         $mediaDTO->media,
                         $mediaDTO->type,
                         $nameFile,
-                        'files' ,
+                        "posts/$createdPost->id",
                         'azure',
                     );
 
@@ -43,15 +43,17 @@ class PostRepository implements PostRepositoryInterface
             }
 
             if ($post->getPollData()) {
-                $poll = $createdPost->poll()->create([
-                    'question' => $post->getPollData()['question']
-                ]);
-
-                foreach ($post->getPollData()['options'] as $optionText) {
-                    $poll->options()->create([
-                        'content' => $optionText,
-                        'vote_count' => 0
+                foreach ($post->getPollData() as $pollDTO) {
+                    $poll = $createdPost->poll()->create([
+                        'question' => $pollDTO->question
                     ]);
+                    // dd($pollDTO->options);
+                    foreach ($pollDTO->options as $option) {
+                        $poll->options()->create([
+                            'content' => $option->content,
+                            'vote_count' => $option->voteCount
+                        ]);
+                    }
                 }
             }
 

@@ -8,10 +8,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class OptionModel extends Model
 {
     protected $table = 'options';
-    
+
     protected $fillable = [
         'poll_id',
-        'option_text',
+        'content',
         'vote_count'
     ];
 
