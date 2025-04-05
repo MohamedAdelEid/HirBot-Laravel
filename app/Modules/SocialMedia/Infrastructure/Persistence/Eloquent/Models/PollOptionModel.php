@@ -5,7 +5,7 @@ namespace App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class OptionModel extends Model
+class PollOptionModel extends Model
 {
     protected $table = 'options';
 

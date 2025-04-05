@@ -15,13 +15,23 @@ class PollDTO
 
     public static function fromArray(array $data): self
     {
-        $options = array_map(
-            fn(array $option) => PollOptionDTO::fromArray([
-                'content' => $option['content'],
-                'vote_count' => 0
-            ]),
-            $data['options']
-        );
+        $options = [];
+        foreach ($data['options'] as $key => $option) {
+            // If option is an array with 'content' key
+            if (is_array($option) && isset($option['content'])) {
+                $optionData = [
+                    'content' => $option['content'],
+                    'vote_count' => 0
+                ];
+
+                // If option has an ID, it's an existing option being updated
+                if (isset($option['id'])) {
+                    $optionData['id'] = $option['id'];
+                }
+
+                $options[] = PollOptionDTO::fromArray($optionData);
+            }
+        }
 
         return new self(
             question: $data['question'],
@@ -40,3 +50,4 @@ class PollDTO
         ];
     }
 }
+

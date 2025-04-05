@@ -10,7 +10,7 @@ use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\PostModel
 class PollModel extends Model
 {
     protected $table = 'polls';
-    
+
     protected $fillable = [
         'post_id',
         'question'
@@ -23,6 +23,6 @@ class PollModel extends Model
 
     public function options(): HasMany
     {
-        return $this->hasMany(OptionModel::class, 'poll_id');
+        return $this->hasMany(PollOptionModel::class, 'poll_id');
     }
 }

@@ -11,30 +11,47 @@ class Post
     private string $content;
     private PrivacyCommentsEnum $privacyComments;
     private PostVisibilityEnum $visibility;
-    private ?array $media;
-    private ?array $pollData;
 
     public function __construct(
         string $userId,
         string $content,
         PrivacyCommentsEnum $privacyComments,
-        PostVisibilityEnum $visibility,
-        ?array $media = null,
-        ?array $pollData = null
+        PostVisibilityEnum $visibility
     ) {
         $this->userId = $userId;
         $this->content = $content;
         $this->privacyComments = $privacyComments;
         $this->visibility = $visibility;
-        $this->media = $media;
-        $this->pollData = $pollData;
     }
 
-    // Getters
-    public function getUserId(): string { return $this->userId; }
-    public function getContent(): string { return $this->content; }
-    public function getPrivacyComments(): PrivacyCommentsEnum { return $this->privacyComments; }
-    public function getVisibility(): PostVisibilityEnum { return $this->visibility; }
-    public function getMedia(): ?array { return $this->media; }
-    public function getPollData(): ?array { return $this->pollData; }
+    public function getUserId(): string
+    {
+        return $this->userId;
+    }
+
+    public function getContent(): string
+    {
+        return $this->content;
+    }
+
+    public function getPrivacyComments(): PrivacyCommentsEnum
+    {
+        return $this->privacyComments;
+    }
+
+    public function getVisibility(): PostVisibilityEnum
+    {
+        return $this->visibility;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'user_id' => $this->userId,
+            'content' => $this->content,
+            'privacy_comments' => $this->privacyComments->value,
+            'visibility' => $this->visibility->value,
+        ];
+    }
 }
+

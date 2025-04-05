@@ -37,7 +37,7 @@ class CreatePostDTO
         }
 
         $pollItems = [];
-        if (isset($data['poll_data']) && is_array($data['poll_data'])) {
+        if (isset($data['poll_data'])) {
             $pollItems[] = PollDTO::fromArray($data['poll_data']);
         }
 
