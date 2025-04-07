@@ -21,6 +21,8 @@ Route::group([
 
     // Posts Resource Routes (Handles CRUD Operations)
     Route::apiResource('posts', PostController::class);
+    Route::delete('posts/{id}/force', [PostController::class, 'forceDestroy'])->name('posts.force-destroy');
+
 
 });
 

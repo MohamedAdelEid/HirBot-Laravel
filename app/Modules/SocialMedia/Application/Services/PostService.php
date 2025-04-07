@@ -16,6 +16,8 @@ use App\Shared\Repositories\BaseRepository;
 use App\Shared\Facades\FileUploader;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Pagination\LengthAwarePaginator;
+
 
 class PostService
 {
@@ -26,6 +28,29 @@ class PostService
         $this->repository = $repository;
     }
 
+    /**
+     * Get all posts with pagination
+     *
+     * @param array $filters
+     * @return LengthAwarePaginator
+     */
+    public function getAllPosts(array $filters = []): LengthAwarePaginator
+    {
+        $query = PostModel::with(['media', 'poll.options']);
+
+        // Apply pagination
+        $perPage = $filters['per_page'] ?? 15;
+        $page = $filters['page'] ?? 1;
+
+        return $query->paginate($perPage, ['*'], 'page', $page);
+    }
+
+    /**
+     * Create a new post
+     *
+     * @param CreatePostDTO $dto
+     * @return array
+     */
     public function createPost(CreatePostDTO $dto): array
     {
         try {
@@ -107,6 +132,30 @@ class PostService
         }
     }
 
+    /**
+     * Get a post by ID
+     *
+     * @param int $postId
+     * @return PostModel|null
+     */
+    public function getPost(int $postId): ?PostModel
+    {
+        $this->repository->setModel(new PostModel());
+
+        $post = $this->repository->findOrFail($postId);
+
+        $post->load(['media', 'poll.options']);
+
+        return $post;
+    }
+
+    /**
+     * Update a post
+     *
+     * @param PostModel $postModel
+     * @param UpdatePostDTO $dto
+     * @return array
+     */
     public function updatePost(PostModel $postModel, UpdatePostDTO $dto): array
     {
         try {
@@ -218,5 +267,80 @@ class PostService
             throw $e;
         }
     }
-}
 
+    /**
+     * Soft delete a post
+     *
+     * @param int $postId
+     * @return bool
+     */
+    public function deletePost(int $postId): bool
+    {
+        try {
+            DB::beginTransaction();
+
+            $this->repository->setModel(new PostModel());
+
+            // Soft delete the post
+            $this->repository->delete($postId);
+
+            DB::commit();
+
+            return true;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * Force delete a post and its related data
+     *
+     * @param int $postId
+     * @return bool
+     */
+    public function forceDeletePost(int $postId): bool
+    {
+        try {
+            DB::beginTransaction();
+
+            // Find the post
+            $this->repository->setModel(new PostModel());
+            $post = $this->repository->findOrFail($postId);
+
+            // Delete media files from storage
+            foreach ($post->media as $media) {
+                FileUploader::delete($media->media_url, 'azure');
+            }
+
+            // Delete poll options
+            if ($post->poll) {
+                $this->repository->setModel(new PollOptionModel());
+                foreach ($post->poll->options as $option) {
+                    $this->repository->delete($option->id);
+                }
+
+                // Delete poll
+                $this->repository->setModel(new PollModel());
+                $this->repository->delete($post->poll->id);
+            }
+
+            // Delete media records
+            $this->repository->setModel(new PostMediaModel());
+            foreach ($post->media as $media) {
+                $this->repository->delete($media->id);
+            }
+
+            // Force delete the post
+            $this->repository->setModel(new PostModel());
+            $post->forceDelete();
+
+            DB::commit();
+
+            return true;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+}

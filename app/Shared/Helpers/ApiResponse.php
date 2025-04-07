@@ -56,22 +56,18 @@ class ApiResponse implements ResponseInterface
      */
     public function paginated(mixed $data, ?string $message = null, int $statusCode = 200): JsonResponse
     {
-        if ($data instanceof LengthAwarePaginator) {
-            return response()->json([
-                'status' => ResponseStatus::SUCCESS->value,
-                'message' => $message ?? 'Data retrieved successfully',
+        return response()->json([
+            'status' => ResponseStatus::SUCCESS->value,
+            'message' => $message ?? 'Data retrieved successfully',
+            'data' => [
                 'data' => $this->transformData($data->items()),
-                'meta' => [
-                    'current_page' => $data->currentPage(),
-                    'last_page' => $data->lastPage(),
-                    'per_page' => $data->perPage(),
-                    'total' => $data->total()
-                ],
-                'statusCode' => $statusCode
-            ], $statusCode);
-        }
-
-        return $this->success($data, $message, $statusCode);
+                'currentPage' => $data->currentPage(),
+                'totalPages' => $data->lastPage(),
+                'pageSize' => $data->perPage(),
+                'totalRecords' => $data->total(),
+            ],
+            'statusCode' => $statusCode
+        ], $statusCode);
     }
 
     /**

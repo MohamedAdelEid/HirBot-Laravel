@@ -17,6 +17,7 @@ return new class extends Migration {
             $table->text('content');
             $table->enum('privacy_comments', ['public', 'friends', 'private'])->default('public');
             $table->enum('visibility', ['public', 'friends', 'private'])->default('public');
+            $table->softDeletes();
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');

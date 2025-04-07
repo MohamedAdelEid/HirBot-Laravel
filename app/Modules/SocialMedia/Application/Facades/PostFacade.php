@@ -26,4 +26,5 @@ class PostFacade extends Facade
         $dto = UpdatePostDTO::fromRequest($data);
         return static::getFacadeRoot()->updatePost($post, $dto);
     }
+
 }
