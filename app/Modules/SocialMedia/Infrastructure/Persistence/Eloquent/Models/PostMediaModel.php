@@ -2,7 +2,7 @@
 
 namespace App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models;
 
-use App\Modules\SocialMedia\Domain\Enums\PostMediaTypeEnum;
+use App\Modules\SocialMedia\Domain\Enums\Post\PostMediaTypeEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\PostModel;

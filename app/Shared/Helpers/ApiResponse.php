@@ -79,7 +79,7 @@ class ApiResponse implements ResponseInterface
     private function transformData(mixed $data): mixed
     {
         if ($data instanceof JsonResource) {
-            return $data->response()->getData(true);
+            return $data->toArray(request());
         }
 
         return $data;

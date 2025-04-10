@@ -2,9 +2,9 @@
 
 namespace App\Modules\SocialMedia\Presentation\Http\Requests\Post\Traits;
 
-use App\Modules\SocialMedia\Domain\Enums\PostMediaTypeEnum;
-use App\Modules\SocialMedia\Domain\Enums\PostVisibilityEnum;
-use App\Modules\SocialMedia\Domain\Enums\PrivacyCommentsEnum;
+use App\Modules\SocialMedia\Domain\Enums\Post\PostMediaTypeEnum;
+use App\Modules\SocialMedia\Domain\Enums\Post\PostVisibilityEnum;
+use App\Modules\SocialMedia\Domain\Enums\Post\PrivacyCommentsEnum;
 use Illuminate\Validation\Rule;
 
 trait PostValidationRules

@@ -4,8 +4,8 @@ namespace App\Modules\SocialMedia\Application\DTOs\Post;
 
 use App\Modules\SocialMedia\Application\DTOs\Post\PollDTO;
 use App\Modules\SocialMedia\Application\DTOs\Post\MediaDTO;
-use App\Modules\SocialMedia\Domain\Enums\PostVisibilityEnum;
-use App\Modules\SocialMedia\Domain\Enums\PrivacyCommentsEnum;
+use App\Modules\SocialMedia\Domain\Enums\Post\PostVisibilityEnum;
+use App\Modules\SocialMedia\Domain\Enums\Post\PrivacyCommentsEnum;
 use Illuminate\Support\Facades\Auth;
 
 class CreatePostDTO

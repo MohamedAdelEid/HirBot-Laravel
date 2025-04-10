@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\SocialMedia\Domain\Enums;
+namespace App\Modules\SocialMedia\Domain\Enums\Post;
 
 enum PostVisibilityEnum: string
 {

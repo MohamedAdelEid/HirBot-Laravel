@@ -2,8 +2,8 @@
 
 namespace App\Modules\SocialMedia\Domain\Entities;
 
-use App\Modules\SocialMedia\Domain\Enums\PostVisibilityEnum;
-use App\Modules\SocialMedia\Domain\Enums\PrivacyCommentsEnum;
+use App\Modules\SocialMedia\Domain\Enums\Post\PostVisibilityEnum;
+use App\Modules\SocialMedia\Domain\Enums\Post\PrivacyCommentsEnum;
 
 class Post
 {

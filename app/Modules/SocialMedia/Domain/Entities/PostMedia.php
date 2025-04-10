@@ -2,7 +2,6 @@
 
 namespace App\Modules\SocialMedia\Domain\Entities;
 
-use App\Modules\SocialMedia\Domain\Enums\PostMediaTypeEnum;
 use Illuminate\Http\UploadedFile;
 
 class PostMedia
