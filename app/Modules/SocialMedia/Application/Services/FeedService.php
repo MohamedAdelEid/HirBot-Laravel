@@ -65,13 +65,13 @@ class FeedService
             ])
             ->where(function($query) use ($userId, $connectedUserIds) {
                 // Include public posts from any user
-                $query->where('visibility', PostVisibilityEnum::PUBLIC->value);
+                $query->where('posts.visibility', PostVisibilityEnum::PUBLIC->value);
 
                 // Or include posts from connected users with visibility 'friends' or 'public'
                 if (!empty($connectedUserIds)) {
                     $query->orWhere(function($q) use ($connectedUserIds) {
-                        $q->whereIn('user_id', $connectedUserIds)
-                        ->whereIn('visibility', [
+                        $q->whereIn('posts.user_id', $connectedUserIds)
+                        ->whereIn('posts.visibility', [
                             PostVisibilityEnum::FRIENDS->value,
                             PostVisibilityEnum::PUBLIC->value
                         ]);
@@ -218,5 +218,4 @@ class FeedService
 
         return $results;
     }
-
 }
