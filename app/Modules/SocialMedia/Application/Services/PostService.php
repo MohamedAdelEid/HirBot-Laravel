@@ -8,6 +8,8 @@ use App\Modules\SocialMedia\Domain\Entities\Post;
 use App\Modules\SocialMedia\Domain\Entities\PostMedia;
 use App\Modules\SocialMedia\Domain\Entities\Poll;
 use App\Modules\SocialMedia\Domain\Entities\PollOption;
+use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\CommentModel;
+use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\InteractionModel;
 use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\PollOptionModel;
 use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\PostModel;
 use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\PostMediaModel;
@@ -343,4 +345,43 @@ class PostService
             throw $e;
         }
     }
+
+    /**
+     * Get all comments for a post
+     *
+     * @param int $postId
+     * @param array $filters
+     * @return LengthAwarePaginator
+     */
+    public function getPostComments(int $postId, array $filters = []): LengthAwarePaginator
+    {
+        $perPage = $filters['per_page'] ?? 15;
+        $page = $filters['page'] ?? 1;
+
+        $query = CommentModel::with(['user:Id,name,profile_image'])
+            ->where('post_id', $postId)
+            ->orderBy('created_at', 'desc');
+
+        return $query->paginate($perPage, ['*'], 'page', $page);
+    }
+
+    /**
+     * Get all interactions for a post
+     *
+     * @param int $postId
+     * @param array $filters
+     * @return LengthAwarePaginator
+     */
+    public function getPostInteractions(int $postId, array $filters = []): LengthAwarePaginator
+    {
+        $perPage = $filters['per_page'] ?? 15;
+        $page = $filters['page'] ?? 1;
+
+        $query = InteractionModel::with(['user:Id,name,profile_image'])
+            ->where('post_id', $postId)
+            ->orderBy('created_at', 'desc');
+
+        return $query->paginate($perPage, ['*'], 'page', $page);
+    }
+
 }

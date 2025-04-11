@@ -23,8 +23,11 @@ class FeedFacade extends Facade
                 'page' => $dto->page,
                 'per_page' => $dto->perPage,
                 'search' => $dto->search,
-                'visibility' => $dto->visibility
+                'visibility' => $dto->visibility,
+                'doFeedRefresh' => $dto->doFeedRefresh,
+                'lastUpdatedAt' => $dto->lastUpdatedAt
             ]
         );
     }
+
 }

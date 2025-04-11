@@ -30,9 +30,11 @@ class PostResource extends JsonResource
                     'options' => PollOptionResource::collection($this->poll->options)
                 ];
             }),
-            'comments' => CommentResource::collection($this->whenLoaded('comments')),
+            // Only include the last two comments
+            'recent_comments' => CommentResource::collection($this->whenLoaded('comments')),
             'comments_count' => $this->when(isset($this->comments_count), $this->comments_count),
-            'interactions' => InteractionResource::collection($this->whenLoaded('interactions')),
+            // Include the last interaction for notification
+            'last_interaction' => InteractionResource::collection($this->whenLoaded('interactions')),
             'interactions_count' => $this->when(isset($this->interactions_count), $this->interactions_count),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

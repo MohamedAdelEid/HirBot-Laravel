@@ -7,20 +7,24 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class InteractionModel extends Model
+class PostViewModel extends Model
 {
     use HasFactory;
 
-    protected $table = 'interactions';
+    protected $table = 'post_views';
 
     protected $fillable = [
         'user_id',
         'post_id',
-        'type',
+        'last_viewed_at',
+    ];
+
+    protected $casts = [
+        'last_viewed_at' => 'datetime',
     ];
 
     /**
-     * Get the user who created the interaction.
+     * Get the user who viewed the post.
      */
     public function user(): BelongsTo
     {
@@ -28,7 +32,7 @@ class InteractionModel extends Model
     }
 
     /**
-     * Get the post that the interaction belongs to.
+     * Get the post that was viewed.
      */
     public function post(): BelongsTo
     {

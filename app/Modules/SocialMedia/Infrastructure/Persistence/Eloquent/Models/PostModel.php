@@ -2,6 +2,7 @@
 
 namespace App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models;
 
+use App\Modules\SocialMedia\Domain\Enums\Post\PostVisibilityEnum;
 use App\Modules\SocialMedia\Domain\Enums\Post\PrivacyCommentsEnum;
 use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\PollModel;
 use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\PostMediaModel;
@@ -27,6 +28,7 @@ class PostModel extends Model
     ];
 
     protected $casts = [
+        'visibility' => PostVisibilityEnum::class,
         'privacy_comments' => PrivacyCommentsEnum::class,
     ];
 
@@ -69,5 +71,13 @@ class PostModel extends Model
     public function interactions(): HasMany
     {
         return $this->hasMany(InteractionModel::class, 'post_id');
+    }
+
+    /**
+     * Get the views for the post.
+     */
+    public function views(): HasMany
+    {
+        return $this->hasMany(PostViewModel::class, 'post_id');
     }
 }

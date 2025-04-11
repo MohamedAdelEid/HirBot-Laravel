@@ -11,7 +11,9 @@ class GetFeedDTO
         public readonly ?int $page = 1,
         public readonly ?int $perPage = 15,
         public readonly ?string $search = null,
-        public readonly ?string $visibility = null
+        public readonly ?string $visibility = null,
+        public readonly ?bool $doFeedRefresh = false,
+        public readonly ?string $lastUpdatedAt = null
     ) {}
 
     public static function fromRequest(array $data): self
@@ -21,7 +23,9 @@ class GetFeedDTO
             page: $data['page'] ?? 1,
             perPage: $data['per_page'] ?? 15,
             search: $data['search'] ?? null,
-            visibility: $data['visibility'] ?? null
+            visibility: $data['visibility'] ?? null,
+            doFeedRefresh: $data['doFeedRefresh'] ?? false,
+            lastUpdatedAt: $data['lastUpdatedAt'] ?? null
         );
     }
 }

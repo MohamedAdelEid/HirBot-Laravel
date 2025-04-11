@@ -21,8 +21,8 @@ return new class extends Migration
             $table->enum('type', ConnectionTypeEnum::values())->default('connection');
             $table->timestamps();
 
-            $table->foreign('requester_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('receiver_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('requester_id')->references('Id')->on('users')->onDelete('cascade');
+            $table->foreign('receiver_id')->references('Id')->on('users')->onDelete('cascade');
 
             // Ensure a user can't send multiple connection requests to the same user
             $table->unique(['requester_id', 'receiver_id']);

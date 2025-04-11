@@ -3,15 +3,19 @@
 namespace App\Modules\SocialMedia\Presentation\Http\Controllers\Api\v1;
 
 use App\Modules\SocialMedia\Application\Facades\PostFacade;
+use App\Modules\SocialMedia\Application\Facades\PostViewFacade;
 use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\PostModel;
 use App\Modules\SocialMedia\Presentation\Http\Requests\Post\CreatePostRequest;
 use App\Modules\SocialMedia\Presentation\Http\Requests\Post\GetAllPostsRequest;
+use App\Modules\SocialMedia\Presentation\Http\Requests\Post\GetPostCommentsRequest;
+use App\Modules\SocialMedia\Presentation\Http\Requests\Post\GetPostInteractionsRequest;
 use App\Modules\SocialMedia\Presentation\Http\Requests\Post\UpdatePostRequest;
 use App\Modules\SocialMedia\Presentation\Http\Resources\Post\PostResource;
 use App\Shared\Interfaces\ResponseInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use App\Shared\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
 {
@@ -63,6 +67,8 @@ class PostController extends Controller
     {
         try {
             $post = PostFacade::getPost($post->id);
+
+            PostViewFacade::recordView(Auth::user()->Id, $post->id);
 
             return $this->response->success(new PostResource($post), 'Post retrieved successfully');
         } catch (ModelNotFoundException $e) {
@@ -118,6 +124,52 @@ class PostController extends Controller
             return $this->response->success(null, 'Post permanently deleted successfully');
         } catch (\Exception $e) {
             return $this->response->error('Error deleting post', $e->getMessage());
+        }
+    }
+
+    /**
+     * Get comments for a post
+     *
+     * @param GetPostCommentsRequest $request
+     * @param int $postId
+     * @return JsonResponse
+     */
+    public function getComments(GetPostCommentsRequest $request, int $postId): JsonResponse
+    {
+        try {
+            // Check if post exists
+            $post = PostFacade::getPost($postId);
+
+            $comments = PostFacade::getPostComments($postId, $request->validated());
+
+            return $this->response->paginated($comments, 'Comments retrieved successfully');
+        } catch (ModelNotFoundException $e) {
+            return $this->response->error('Post not found', 'The requested post could not be found.', 404);
+        } catch (\Exception $e) {
+            return $this->response->error('Error retrieving comments', $e->getMessage());
+        }
+    }
+
+    /**
+     * Get interactions for a post
+     *
+     * @param GetPostInteractionsRequest $request
+     * @param int $postId
+     * @return JsonResponse
+     */
+    public function getInteractions(GetPostInteractionsRequest $request, int $postId): JsonResponse
+    {
+        try {
+            // Check if post exists
+            $post = PostFacade::getPost($postId);
+
+            $interactions = PostFacade::getPostInteractions($postId, $request->validated());
+
+            return $this->response->paginated($interactions, 'Interactions retrieved successfully');
+        } catch (ModelNotFoundException $e) {
+            return $this->response->error('Post not found', 'The requested post could not be found.', 404);
+        } catch (\Exception $e) {
+            return $this->response->error('Error retrieving interactions', $e->getMessage());
         }
     }
 
