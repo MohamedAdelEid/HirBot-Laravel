@@ -7,9 +7,7 @@ use App\Modules\SocialMedia\Domain\Enums\Connection\ConnectionStatusEnum;
 use App\Modules\SocialMedia\Domain\Enums\Post\PostVisibilityEnum;
 use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\ConnectionModel;
 use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\PostModel;
-use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\PostViewModel;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class FeedService
