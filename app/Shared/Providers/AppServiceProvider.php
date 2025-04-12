@@ -62,7 +62,7 @@ class AppServiceProvider extends ServiceProvider
                     }
 
                     // Return the full URL
-                    return rtrim($baseUrl, characters: '/') . '/' . $this->config['container'] . '/' . ltrim($path, '/');
+                    return rtrim($baseUrl, '/') . '/' . ltrim($path, '/');
                 }
             };
 
