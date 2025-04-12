@@ -7,7 +7,9 @@ use App\Modules\SocialMedia\Domain\Enums\Connection\ConnectionStatusEnum;
 use App\Modules\SocialMedia\Domain\Enums\Post\PostVisibilityEnum;
 use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\ConnectionModel;
 use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\PostModel;
+use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\PostViewModel;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class FeedService
@@ -18,6 +20,7 @@ class FeedService
     {
         $this->postViewService = $postViewService;
     }
+
     /**
      * Get the feed for a user
      *
@@ -49,10 +52,15 @@ class FeedService
         $query = PostModel::with([
                 'media',
                 'poll.options',
-                'user',
+                // Load user with company or portfolio for title
+                'user' => function($query) {
+                    $query->with(['company', 'portfolio', 'requestedConnections', 'receivedConnections']);
+                },
                 // Only load the last two comments with their users
                 'comments' => function($query) {
-                    $query->latest()->limit(2)->with('user');
+                    $query->latest()->limit(2)->with(['user' => function($query) {
+                        $query->with(['company', 'portfolio']);
+                    }]);
                 },
                 // Load the last interaction for notification purposes
                 'interactions' => function($query) use ($connectedUserIds) {
@@ -60,7 +68,9 @@ class FeedService
                             ->where('created_at', '>=', now()->subDay())
                             ->latest()
                             ->limit(2)
-                            ->with('user');
+                            ->with(['user' => function($query) {
+                                $query->with(['company', 'portfolio']);
+                            }]);
                 }
             ])
             ->where(function($query) use ($userId, $connectedUserIds) {
@@ -217,5 +227,47 @@ class FeedService
         }
 
         return $results;
+    }
+
+    /**
+     * Get all comments for a post
+     *
+     * @param int $postId
+     * @param array $filters
+     * @return LengthAwarePaginator
+     */
+    public function getPostComments(int $postId, array $filters = []): LengthAwarePaginator
+    {
+        $query = DB::table('comments')
+            ->join('users', 'comments.user_id', '=', 'users.id')
+            ->where('post_id', $postId)
+            ->select('comments.*', 'users.name', 'users.profile_image')
+            ->orderBy('created_at', 'desc');
+
+        $perPage = $filters['per_page'] ?? 15;
+        $page = $filters['page'] ?? 1;
+
+        return $query->paginate($perPage, ['*'], 'page', $page);
+    }
+
+    /**
+     * Get all interactions for a post
+     *
+     * @param int $postId
+     * @param array $filters
+     * @return LengthAwarePaginator
+     */
+    public function getPostInteractions(int $postId, array $filters = []): LengthAwarePaginator
+    {
+        $query = DB::table('interactions')
+            ->join('users', 'interactions.user_id', '=', 'users.id')
+            ->where('post_id', $postId)
+            ->select('interactions.*', 'users.name', 'users.profile_image')
+            ->orderBy('created_at', 'desc');
+
+        $perPage = $filters['per_page'] ?? 15;
+        $page = $filters['page'] ?? 1;
+
+        return $query->paginate($perPage, ['*'], 'page', $page);
     }
 }
