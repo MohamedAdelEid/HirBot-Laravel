@@ -2,14 +2,18 @@
 
 namespace App\Modules\SocialMedia\Presentation\Http\Controllers\Api\v1;
 
+use App\Modules\SocialMedia\Application\Facades\InteractionFacade;
 use App\Modules\SocialMedia\Application\Facades\PostFacade;
 use App\Modules\SocialMedia\Application\Facades\PostViewFacade;
+use App\Modules\SocialMedia\Domain\Enums\Interaction\InteractableTargetTypeEnum;
 use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\PostModel;
+use App\Modules\SocialMedia\Presentation\Http\Requests\Interaction\CreateInteractionRequest;
 use App\Modules\SocialMedia\Presentation\Http\Requests\Post\CreatePostRequest;
 use App\Modules\SocialMedia\Presentation\Http\Requests\Post\GetAllPostsRequest;
 use App\Modules\SocialMedia\Presentation\Http\Requests\Post\GetPostCommentsRequest;
 use App\Modules\SocialMedia\Presentation\Http\Requests\Post\GetPostInteractionsRequest;
 use App\Modules\SocialMedia\Presentation\Http\Requests\Post\UpdatePostRequest;
+use App\Modules\SocialMedia\Presentation\Http\Resources\Feed\InteractionResource;
 use App\Modules\SocialMedia\Presentation\Http\Resources\Post\PostResource;
 use App\Shared\Interfaces\ResponseInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -170,6 +174,55 @@ class PostController extends Controller
             return $this->response->error('Post not found', 'The requested post could not be found.', 404);
         } catch (\Exception $e) {
             return $this->response->error('Error retrieving interactions', $e->getMessage());
+        }
+    }
+
+        /**
+     * Create a post interaction
+     *
+     * @param CreateInteractionRequest $request
+     * @param int $postId
+     * @return JsonResponse
+     */
+    public function interact(CreateInteractionRequest $request, int $postId): JsonResponse
+    {
+        try {
+            $interaction = InteractionFacade::createInteraction(
+                $request->validated(),
+                $postId,
+                InteractableTargetTypeEnum::POST
+            );
+
+            return $this->response->success(
+                new InteractionResource($interaction),
+                'Post interaction created successfully'
+            );
+        } catch (\Exception $e) {
+            return $this->response->error('Error creating post interaction', $e->getMessage());
+        }
+    }
+
+    /**
+     * Delete a post interaction
+     *
+     * @param int $postId
+     * @return JsonResponse
+     */
+    public function removeInteraction(int $postId): JsonResponse
+    {
+        try {
+            $result = InteractionFacade::deleteInteraction(
+                $postId,
+                InteractableTargetTypeEnum::POST,
+                Auth::user()->Id
+            );
+
+            return $this->response->success(
+                null,
+                'Post interaction removed successfully'
+            );
+        } catch (\Exception $e) {
+            return $this->response->error('Error removing post interaction', $e->getMessage(), $e->getCode());
         }
     }
 

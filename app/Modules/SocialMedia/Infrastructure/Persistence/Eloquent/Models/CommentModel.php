@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class CommentModel extends Model
 {
@@ -19,6 +20,7 @@ class CommentModel extends Model
         'post_id',
         'parent_comment_id',
         'content',
+        'image_path',
     ];
 
     /**
@@ -26,7 +28,7 @@ class CommentModel extends Model
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', 'id');
+        return $this->belongsTo(User::class, 'user_id', 'Id');
     }
 
     /**
@@ -51,5 +53,23 @@ class CommentModel extends Model
     public function replies(): HasMany
     {
         return $this->hasMany(CommentModel::class, 'parent_comment_id');
+    }
+
+    /**
+     * Get the interactions for this comment.
+     */
+    public function interactions(): MorphMany
+    {
+        return $this->morphMany(InteractionModel::class, 'interactable');
+    }
+
+    /**
+     * Get the morph class name for this model
+     *
+     * @return string
+     */
+    public function getMorphClass()
+    {
+        return 'comment';
     }
 }

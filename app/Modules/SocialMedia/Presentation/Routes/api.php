@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\SocialMedia\Presentation\Http\Controllers\Api\v1\CommentController;
 use App\Modules\SocialMedia\Presentation\Http\Controllers\Api\v1\ConnectionController;
 use App\Modules\SocialMedia\Presentation\Http\Controllers\Api\v1\FeedController;
 use App\Modules\SocialMedia\Presentation\Http\Controllers\Api\v1\PostController;
@@ -35,31 +36,46 @@ Route::middleware(['auth', 'role:' . UserRoleEnum::COMPANY->value . ',' . UserRo
         Route::delete('posts/{id}/force', [PostController::class, 'forceDestroy'])
             ->name('posts.force-destroy');
 
+        // Post Interaction Routes
+        Route::post('posts/{postId}/interact', [PostController::class, 'interact'])
+            ->name('posts.interact');
+        Route::delete('posts/{postId}/interact', [PostController::class, 'removeInteraction'])
+            ->name('posts.remove-interaction');
+
         // Get Feed for Authenticated User
         Route::get('/feed', [FeedController::class, 'index'])
             ->name('feed.index');
+
+        // Comment Routes
+        Route::get('posts/{postId}/comments', [CommentController::class, 'index'])
+            ->name('comments.index');
+        Route::post('posts/{postId}/comments', [CommentController::class, 'store'])
+            ->name('comments.store');
+        Route::delete('comments/{commentId}', [CommentController::class, 'destroy'])
+            ->name('comments.destroy');
+
+        // Comment Interaction Routes
+        Route::post('comments/{commentId}/interact', [CommentController::class, 'interact'])
+            ->name('comments.interact');
+        Route::delete('comments/{commentId}/interact', [CommentController::class, 'removeInteraction'])
+            ->name('comments.remove-interaction');
 
 
         // Connection Routes (Friend Requests, Accept, Reject, etc.)
         Route::prefix('connections')->group(function () {
 
-            // Send a Connection Request
             Route::post('/', [ConnectionController::class, 'sendRequest'])
                 ->name('connections.send');
 
-            // Accept a Connection Request
             Route::post('/accept', [ConnectionController::class, 'acceptRequest'])
                 ->name('connections.accept');
 
-            // Reject a Connection Request
             Route::post('/reject', [ConnectionController::class, 'rejectRequest'])
                 ->name('connections.reject');
 
-            // Get Pending Connection Requests
             Route::get('/pending', [ConnectionController::class, 'getPendingRequests'])
                 ->name('connections.pending');
 
-            // Get All Connections
             Route::get('/', [ConnectionController::class, 'getConnections'])
                 ->name('connections.index');
         });

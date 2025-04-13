@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PostModel extends Model
@@ -68,9 +69,9 @@ class PostModel extends Model
     /**
      * Get the interactions for the post.
      */
-    public function interactions(): HasMany
+    public function interactions(): MorphMany
     {
-        return $this->hasMany(InteractionModel::class, 'post_id');
+        return $this->morphMany(InteractionModel::class, 'interactable');
     }
 
     /**
@@ -79,5 +80,15 @@ class PostModel extends Model
     public function views(): HasMany
     {
         return $this->hasMany(PostViewModel::class, 'post_id');
+    }
+
+    /**
+     * Get the morph class name for this model
+     *
+     * @return string
+     */
+    public function getMorphClass()
+    {
+        return 'post';
     }
 }

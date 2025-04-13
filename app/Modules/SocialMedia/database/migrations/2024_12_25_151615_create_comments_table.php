@@ -16,9 +16,10 @@ return new class extends Migration
             $table->string('user_id', 255)->collation('utf8mb4_general_ci');
             $table->foreignId('post_id')->constrained('posts')->cascadeOnDelete();
             $table->foreignId('parent_comment_id')->nullable()->constrained('comments')->cascadeOnDelete();
-            $table->text('content');
+            $table->text('content')->nullable();
+            $table->string('image_path', 512)->nullable();
             $table->timestamps();
-    
+
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }

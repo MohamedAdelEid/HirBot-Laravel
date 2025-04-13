@@ -2,6 +2,7 @@
 
 namespace App\Modules\SocialMedia\Application\Services;
 
+use App\Modules\SocialMedia\Domain\Enums\Interaction\InteractableTargetTypeEnum;
 use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\PostViewModel;
 use Illuminate\Support\Facades\DB;
 
@@ -58,7 +59,8 @@ class PostViewService
 
         if (!$newActivity) {
             $newActivity = DB::table('interactions')
-                ->where('post_id', $postId)
+                ->where('interactable_id', $postId)
+                ->where('interactable_type', InteractableTargetTypeEnum::POST->morphClass())
                 ->where('created_at', '>', $postView->last_viewed_at)
                 ->exists();
         }
@@ -83,7 +85,8 @@ class PostViewService
         // Get posts the user has interacted with
         $interactedPostIds = DB::table('interactions')
             ->where('user_id', $userId)
-            ->pluck('post_id')
+            ->where('interactable_type', InteractableTargetTypeEnum::POST->morphClass())
+            ->pluck('interactable_id')
             ->toArray();
 
         // Combine and remove duplicates

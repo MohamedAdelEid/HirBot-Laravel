@@ -4,8 +4,11 @@ namespace App\Modules\SocialMedia\Application\Services;
 
 use App\Modules\SocialMedia\Application\Facades\ConnectionFacade;
 use App\Modules\SocialMedia\Domain\Enums\Connection\ConnectionStatusEnum;
+use App\Modules\SocialMedia\Domain\Enums\Interaction\InteractableTargetTypeEnum;
 use App\Modules\SocialMedia\Domain\Enums\Post\PostVisibilityEnum;
+use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\CommentModel;
 use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\ConnectionModel;
+use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\InteractionModel;
 use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\PostModel;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
@@ -146,7 +149,14 @@ class FeedService
         $query->selectRaw('CASE WHEN post_views.id IS NULL THEN 0 ELSE 1 END as is_viewed');
 
         // Get posts with engagement metrics
-        $query->withCount(['comments', 'interactions']);
+        $query->withCount(['comments']);
+
+        // Count interactions for posts using the polymorphic relationship
+        $query->withCount([
+            'interactions' => function($query) {
+                $query->where('interactable_type', InteractableTargetTypeEnum::POST->morphClass());
+            }
+        ]);
 
         // Build the ORDER BY clause
         $orderByClause = "
@@ -225,47 +235,5 @@ class FeedService
         }
 
         return $results;
-    }
-
-    /**
-     * Get all comments for a post
-     *
-     * @param int $postId
-     * @param array $filters
-     * @return LengthAwarePaginator
-     */
-    public function getPostComments(int $postId, array $filters = []): LengthAwarePaginator
-    {
-        $query = DB::table('comments')
-            ->join('users', 'comments.user_id', '=', 'users.id')
-            ->where('post_id', $postId)
-            ->select('comments.*', 'users.name', 'users.profile_image')
-            ->orderBy('created_at', 'desc');
-
-        $perPage = $filters['per_page'] ?? 15;
-        $page = $filters['page'] ?? 1;
-
-        return $query->paginate($perPage, ['*'], 'page', $page);
-    }
-
-    /**
-     * Get all interactions for a post
-     *
-     * @param int $postId
-     * @param array $filters
-     * @return LengthAwarePaginator
-     */
-    public function getPostInteractions(int $postId, array $filters = []): LengthAwarePaginator
-    {
-        $query = DB::table('interactions')
-            ->join('users', 'interactions.user_id', '=', 'users.id')
-            ->where('post_id', $postId)
-            ->select('interactions.*', 'users.name', 'users.profile_image')
-            ->orderBy('created_at', 'desc');
-
-        $perPage = $filters['per_page'] ?? 15;
-        $page = $filters['page'] ?? 1;
-
-        return $query->paginate($perPage, ['*'], 'page', $page);
     }
 }

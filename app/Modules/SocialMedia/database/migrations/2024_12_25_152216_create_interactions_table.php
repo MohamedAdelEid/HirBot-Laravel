@@ -13,8 +13,8 @@ return new class extends Migration {
         Schema::create('interactions', function (Blueprint $table) {
             $table->id();
             $table->string('user_id', 255)->collation('utf8mb4_general_ci');
-            $table->foreignId('post_id')->constrained('posts')->cascadeOnDelete();
             $table->enum('type', ['like', 'dislike', 'love', 'laugh', 'angry'])->default('like');
+            $table->morphs('interactable');
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');

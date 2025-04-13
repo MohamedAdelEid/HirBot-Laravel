@@ -2,9 +2,12 @@
 
 namespace App\Modules\SocialMedia\Presentation\Http\Resources\Feed;
 
+use App\Modules\SocialMedia\Domain\Enums\Interaction\InteractableTargetTypeEnum;
+use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\InteractionModel;
 use App\Modules\SocialMedia\Presentation\Http\Resources\Post\MediaResource;
 use App\Modules\SocialMedia\Presentation\Http\Resources\Post\PollOptionResource;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Auth;
 
 class PostResource extends JsonResource
 {
@@ -16,6 +19,30 @@ class PostResource extends JsonResource
      */
     public function toArray($request)
     {
+        // Get current user's interaction with this post
+        $userInteraction = null;
+        $userId = Auth::check() ? Auth::user()->Id : null;
+
+        if ($userId) {
+            $userInteraction = InteractionModel::where('user_id', $userId)
+                ->where('interactable_id', $this->id)
+                ->where('interactable_type', InteractableTargetTypeEnum::POST->morphClass())
+                ->first();
+        }
+
+        // Get interaction counts by type
+        $interactionCounts = [];
+        $interactions = InteractionModel::where('interactable_id', $this->id)
+            ->where('interactable_type', InteractableTargetTypeEnum::POST->morphClass())
+            ->get();
+
+        $interactionCounts = $interactions
+            ->groupBy('type')
+            ->map(function ($group) {
+                return $group->count();
+            })
+            ->toArray();
+
         return [
             'id' => $this->id,
             'user' => new UserResource($this->whenLoaded('user')),
@@ -35,7 +62,10 @@ class PostResource extends JsonResource
             'comments_count' => $this->when(isset($this->comments_count), $this->comments_count),
             // Include the last interaction for notification
             'last_interaction' => InteractionResource::collection($this->whenLoaded('interactions')),
-            'interactions_count' => $this->when(isset($this->interactions_count), $this->interactions_count),
+            'total_interactions' => $this->when(isset($this->interactions_count), $this->interactions_count),
+            'interactions_count' => $interactionCounts,
+            'user_interacted' => !is_null($userInteraction),
+            'user_interaction_type' => $userInteraction ? $userInteraction->type : null,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

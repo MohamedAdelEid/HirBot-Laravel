@@ -2,10 +2,13 @@
 
 namespace App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models;
 
+use App\Modules\SocialMedia\Domain\Enums\Interaction\InteractableTargetTypeEnum;
+use App\Modules\SocialMedia\Domain\Enums\Interaction\InteractionTypeEnum;
 use App\Shared\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class InteractionModel extends Model
 {
@@ -13,9 +16,14 @@ class InteractionModel extends Model
 
     protected $table = 'interactions';
 
+    protected $cast = [
+        InteractionTypeEnum::class,
+    ];
+
     protected $fillable = [
         'user_id',
-        'post_id',
+        'interactable_id',
+        'interactable_type',
         'type',
     ];
 
@@ -28,10 +36,21 @@ class InteractionModel extends Model
     }
 
     /**
-     * Get the post that the interaction belongs to.
+     * Get the interactable model (e.g., Post, Comment).
      */
-    public function post(): BelongsTo
+    public function interactable(): MorphTo
     {
-        return $this->belongsTo(PostModel::class, 'post_id');
+        return $this->morphTo();
+    }
+
+
+    /**
+     * Get the interactable type as enum
+     *
+     * @return InteractableTargetTypeEnum
+     */
+    public function getInteractableTypeEnum(): InteractableTargetTypeEnum
+    {
+        return InteractableTargetTypeEnum::from($this->interactable_type);
     }
 }

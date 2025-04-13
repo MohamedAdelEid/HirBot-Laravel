@@ -22,7 +22,6 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $table = "users";
-
     protected $primaryKey = "Id";
     public $incrementing = false;
 

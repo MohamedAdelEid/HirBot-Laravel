@@ -17,7 +17,8 @@ class InteractionResource extends JsonResource
         return [
             'id' => $this->id,
             'user' => new UserResource($this->whenLoaded('user')),
-            'post_id' => $this->post_id,
+            'interactable_id' => $this->interactable_id,
+            'interactable_type' => $this->interactable_type,
             'type' => $this->type,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

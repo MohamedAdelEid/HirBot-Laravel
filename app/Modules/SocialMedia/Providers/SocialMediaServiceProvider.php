@@ -2,6 +2,9 @@
 
 namespace App\Modules\SocialMedia\Providers;
 
+use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\CommentModel;
+use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\PostModel;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Nwidart\Modules\Traits\PathNamespace;
@@ -27,6 +30,12 @@ class SocialMediaServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerViews();
         $this->loadMigrationsFrom(module_path($this->name, 'database/migrations'));
+
+        // Register the morph map for polymorphic relations
+        Relation::morphMap([
+            'comment' => CommentModel::class,
+            'post' => PostModel::class,
+        ]);
     }
 
     /**
@@ -39,6 +48,7 @@ class SocialMediaServiceProvider extends ServiceProvider
         $this->app->register(ServiceServiceProvider::class);
         $this->app->register(RepositoryServiceProvider::class);
         $this->app->register(FacadeServiceProvider::class);
+        $this->app->register(BroadcastServiceProvider::class);
     }
 
     /**

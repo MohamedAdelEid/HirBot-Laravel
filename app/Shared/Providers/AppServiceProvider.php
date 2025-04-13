@@ -10,6 +10,8 @@ use League\Flysystem\Filesystem;
 use Illuminate\Support\Facades\Storage;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use Illuminate\Filesystem\FilesystemAdapter;
+use Illuminate\Contracts\Debug\ExceptionHandler;
+use App\Shared\Exceptions\Handler;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +21,9 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(ResponseInterface::class, ApiResponse::class);
+
+        $this->app->singleton(ExceptionHandler::class, Handler::class);
+
     }
 
     /**
