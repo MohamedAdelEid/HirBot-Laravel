@@ -15,21 +15,24 @@ class PostMediaModel extends Model
     protected $fillable = [
         'post_id',
         'type',
-        'media_url'
+        'media_url',
+        'poster_url',
     ];
 
     protected $casts = [
         'type' => PostMediaTypeEnum::class,
     ];
 
-    /**
-     * The attribute media_url form the post.
-     *
-     * @var list<string>
-     */
     public function getMediaUrlAttribute(): string
     {
         $path = $this->attributes['media_url'] ?? '';
+
+        return Storage::url($path);
+    }
+
+    public function getPosterUrlAttribute(): string
+    {
+        $path = $this->attributes['poster_url'] ?? '';
 
         return Storage::url($path);
     }

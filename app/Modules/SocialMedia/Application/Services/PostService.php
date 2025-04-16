@@ -15,6 +15,7 @@ use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\PostModel
 use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\PostMediaModel;
 use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\PollModel;
 use App\Shared\Repositories\BaseRepository;
+use App\Shared\Facades\Video;
 use App\Shared\Facades\FileUploader;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -75,7 +76,6 @@ class PostService
                 $this->repository->setModel(new PostMediaModel());
 
                 foreach ($dto->media as $mediaDTO) {
-
                     $mediaEntity = new PostMedia(
                         $postModel->id,
                         $mediaDTO->type,
@@ -92,6 +92,34 @@ class PostService
                     );
 
                     $mediaEntity->setMediaUrl($path);
+
+                    // Extract poster for videos
+                    if ($mediaDTO->type === 'video') {
+                        // Try to extract poster using FFMpeg
+                        try {
+                            $posterPath = Video::extractPoster(
+                                $path,
+                                'azure',
+                                "posts/{$mediaEntity->getPostId()}/posters"
+                            );
+
+                            if (!$posterPath) {
+                                // Fallback to simpler method if FFMpeg fails
+                                $posterPath = Video::extractPosterFallback(
+                                    $mediaEntity->getFile(),
+                                    'azure',
+                                    "posts/{$mediaEntity->getPostId()}/posters"
+                                );
+                            }
+
+                            if ($posterPath) {
+                                $mediaEntity->setPosterUrl($posterPath);
+                            }
+                        } catch (\Exception $e) {
+                            // Log error but continue without poster
+                            \Log::error('Failed to extract video poster: ' . $e->getMessage());
+                        }
+                    }
 
                     $this->repository->create($mediaEntity->toArray());
                 }
@@ -189,6 +217,11 @@ class PostService
                     // Delete the file from storage
                     FileUploader::delete($media->media_url, 'azure');
 
+                    // Delete the poster if it exists
+                    if ($media->poster_url) {
+                        FileUploader::delete($media->poster_url, 'azure');
+                    }
+
                     // Delete the media record
                     $this->repository->delete($media->id);
                 }
@@ -199,7 +232,6 @@ class PostService
                 $this->repository->setModel(new PostMediaModel());
 
                 foreach ($dto->media as $mediaDTO) {
-
                     $mediaEntity = new PostMedia(
                         $postModel->id,
                         $mediaDTO->type,
@@ -216,6 +248,34 @@ class PostService
                     );
 
                     $mediaEntity->setMediaUrl($path);
+
+                    // Extract poster for videos
+                    if ($mediaDTO->type === 'video') {
+                        // Try to extract poster using FFMpeg
+                        try {
+                            $posterPath = Video::extractPoster(
+                                $path,
+                                'azure',
+                                "posts/{$mediaEntity->getPostId()}/posters"
+                            );
+
+                            if (!$posterPath) {
+                                // Fallback to simpler method if FFMpeg fails
+                                $posterPath = Video::extractPosterFallback(
+                                    $mediaEntity->getFile(),
+                                    'azure',
+                                    "posts/{$mediaEntity->getPostId()}/posters"
+                                );
+                            }
+
+                            if ($posterPath) {
+                                $mediaEntity->setPosterUrl($posterPath);
+                            }
+                        } catch (\Exception $e) {
+                            // Log error but continue without poster
+                            \Log::error('Failed to extract video poster: ' . $e->getMessage());
+                        }
+                    }
 
                     $this->repository->create($mediaEntity->toArray());
                 }
@@ -313,6 +373,11 @@ class PostService
             // Delete media files from storage
             foreach ($post->media as $media) {
                 FileUploader::delete($media->media_url, 'azure');
+
+                // Delete poster if it exists
+                if ($media->poster_url) {
+                    FileUploader::delete($media->poster_url, 'azure');
+                }
             }
 
             // Delete poll options

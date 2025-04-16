@@ -15,6 +15,7 @@ return new class extends Migration {
             $table->foreignId('post_id')->constrained('posts')->cascadeOnDelete();
             $table->enum('type', ['image', 'video', 'document'] )->default('image');
             $table->string('media_url', 512);
+            $table->string('poster_url', 512)->nullable();
             $table->timestamps();
         });
     }

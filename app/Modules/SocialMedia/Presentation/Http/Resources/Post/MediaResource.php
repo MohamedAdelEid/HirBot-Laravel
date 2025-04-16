@@ -18,6 +18,7 @@ class MediaResource extends JsonResource
             'id' => $this->id,
             'type' => $this->type,
             'media_url' => $this->media_url,
+            'poster_url' => $this->poster_url,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
