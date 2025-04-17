@@ -4,6 +4,7 @@ namespace App\Shared\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\ConnectionModel;
+use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\InteractionModel;
 use App\Shared\Enums\UserRoleEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -118,5 +119,11 @@ class User extends Authenticatable
     {
         return $this->hasOne(Portfolio::class, 'UserID', 'Id');
     }
+
+    public function interactions()
+    {
+        return $this->hasMany(InteractionModel::class);
+    }
+
 
 }
