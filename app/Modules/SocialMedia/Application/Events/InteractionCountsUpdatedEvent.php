@@ -38,9 +38,9 @@ class InteractionCountsUpdatedEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        $interactableType = $this->interaction->interactable_type;
+        $channel = $this->interaction->interactable_type . '.' . $this->interaction->interactable_id;
 
-        return new Channel($interactableType . '.' . $this->interaction->interactable_id);
+        return new Channel($channel);
     }
 
     /**

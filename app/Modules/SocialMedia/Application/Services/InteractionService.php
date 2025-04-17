@@ -3,8 +3,9 @@
 namespace App\Modules\SocialMedia\Application\Services;
 
 use App\Modules\SocialMedia\Application\DTOs\Interaction\CreateInteractionDTO;
-use App\Modules\SocialMedia\Domain\Entities\Interaction;
+use App\Modules\SocialMedia\Application\Events\DeleteInteractionEvent;
 use App\Modules\SocialMedia\Application\Events\NewInteractionEvent;
+use App\Modules\SocialMedia\Domain\Entities\Interaction;
 use App\Modules\SocialMedia\Application\Events\InteractionCountsUpdatedEvent;
 use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\InteractionModel;
 use App\Shared\Repositories\BaseRepository;
@@ -60,10 +61,7 @@ class InteractionService
             $interaction->load(['user', 'interactable']);
 
             // Broadcast the updated counts with interaction data
-            event(new InteractionCountsUpdatedEvent(
-                $interaction,
-                false
-            ));
+            event(new NewInteractionEvent($interaction));
 
             DB::commit();
 
@@ -82,7 +80,7 @@ class InteractionService
      * @param string $userId
      * @return bool
      */
-       public function deleteInteraction(int $interactableId, string $interactableType, string $userId): bool
+    public function deleteInteraction(int $interactableId, string $interactableType, string $userId): bool
     {
         try {
             DB::beginTransaction();
@@ -90,7 +88,11 @@ class InteractionService
             $interaction = InteractionModel::where('interactable_id', $interactableId)
                 ->where('interactable_type', $interactableType)
                 ->where('user_id', $userId)
-                ->firstOrFail();
+                ->first();
+
+            if (!$interaction) {
+                throw new \Exception('Interaction not found', 404);
+            }
 
             // Load relationships before deleting
             $interaction->load(['user', 'interactable']);
@@ -101,10 +103,27 @@ class InteractionService
             // Delete the interaction
             $this->repository->delete($interaction->id);
 
-            // Broadcast the deletion event with interaction data
-            event(new InteractionCountsUpdatedEvent(
-                $interactionCopy,
-                true
+            // Get updated counts after deletion
+            $interactions = InteractionModel::where('interactable_id', $interactableId)
+                ->where('interactable_type', $interactableType)
+                ->get();
+
+            $count = $interactions->count();
+
+            // Group interactions by type and count them
+            $countsByType = $interactions->groupBy('type')
+                ->map(function ($group) {
+                    return $group->count();
+                })
+                ->toArray();
+
+            // Broadcast the deletion event with just the required data
+            event(new DeleteInteractionEvent(
+                $userId,
+                $interactableId,
+                $interactableType,
+                $count,
+                $countsByType
             ));
 
             DB::commit();
