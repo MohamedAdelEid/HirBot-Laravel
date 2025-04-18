@@ -46,17 +46,9 @@ Route::middleware(['auth', 'role:' . UserRoleEnum::COMPANY->value . ',' . UserRo
             */
             Route::get('{postId}/comments', [CommentController::class, 'index'])->name('comments.index');
             Route::post('{postId}/comments', [CommentController::class, 'store'])->name('comments.store');
-        });
-
-        /*
-        |--------------------------------------------------------------------------
-        | Comments Routes (Non-Nested)
-        |--------------------------------------------------------------------------
-        */
-        Route::prefix('comments')->controller(CommentController::class)->group(function () {
-            Route::delete('{commentId}', 'destroy')->name('comments.destroy');
-            Route::post('{commentId}/interact', 'interact')->name('comments.interact');
-            Route::delete('{commentId}/interact', 'removeInteraction')->name('comments.remove-interaction');
+            Route::delete('{commentId}', [CommentController::class ,'destroy'])->name('comments.destroy');
+            Route::post('{commentId}/interact', [CommentController::class ,'interact'])->name('comments.interact');
+            Route::delete('{commentId}/interact', [CommentController::class , 'removeInteraction'])->name('comments.remove-interaction');
         });
 
         /*
