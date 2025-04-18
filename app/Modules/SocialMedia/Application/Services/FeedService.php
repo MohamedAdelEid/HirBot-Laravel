@@ -59,7 +59,7 @@ class FeedService
                 },
                 // Only load the last two comments with their users
                 'comments' => function($query) {
-                    $query->latest()->limit(2)->with(['user' => function($query) {
+                    $query->with(['replies' , 'interactions'])->latest()->limit(2)->with(['user' => function($query) {
                         $query->with(['company', 'portfolio']);
                     }]);
                 },
