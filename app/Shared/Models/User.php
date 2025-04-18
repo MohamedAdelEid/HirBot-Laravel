@@ -85,7 +85,7 @@ class User extends Authenticatable
      */
     public function requestedConnections(): HasMany
     {
-        return $this->hasMany(ConnectionModel::class, 'requester_id', 'id');
+        return $this->hasMany(ConnectionModel::class, 'requester_id', 'Id');
     }
 
     /**
@@ -93,7 +93,7 @@ class User extends Authenticatable
      */
     public function receivedConnections(): HasMany
     {
-        return $this->hasMany(ConnectionModel::class, 'receiver_id', 'id');
+        return $this->hasMany(ConnectionModel::class, 'receiver_id', 'Id');
     }
 
     /**

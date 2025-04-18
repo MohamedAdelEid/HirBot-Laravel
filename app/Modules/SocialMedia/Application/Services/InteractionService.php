@@ -6,7 +6,6 @@ use App\Modules\SocialMedia\Application\DTOs\Interaction\CreateInteractionDTO;
 use App\Modules\SocialMedia\Application\Events\DeleteInteractionEvent;
 use App\Modules\SocialMedia\Application\Events\NewInteractionEvent;
 use App\Modules\SocialMedia\Domain\Entities\Interaction;
-use App\Modules\SocialMedia\Application\Events\InteractionCountsUpdatedEvent;
 use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\InteractionModel;
 use App\Shared\Repositories\BaseRepository;
 use Illuminate\Support\Facades\DB;
