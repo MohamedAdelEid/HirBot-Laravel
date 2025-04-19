@@ -9,6 +9,7 @@ use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\CommentMo
 use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\PostModel;
 use App\Shared\Facades\FileUploader;
 use App\Shared\Repositories\BaseRepository;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -79,24 +80,115 @@ class CommentService
         }
     }
 
-    /**
+   /**
      * Get comments for a post with pagination
+     * Includes only the first reply for each comment and the total reply count
      *
      * @param int $postId
      * @param array $filters
      * @return LengthAwarePaginator
      */
-    public function getPostComments(int $postId, array $filters = []): LengthAwarePaginator
+    public function getPostComments(int $postId , $filters): LengthAwarePaginator
     {
         $perPage = $filters['per_page'] ?? 15;
         $page = $filters['page'] ?? 1;
 
-        $query = CommentModel::with(['user', 'replies.user', 'interactions'])
+        $query = CommentModel::with($this->getCommentRelations())
+            ->withCount('replies')
             ->where('post_id', $postId)
             ->whereNull('parent_comment_id')
             ->orderBy('created_at', 'desc');
 
         return $query->paginate($perPage, ['*'], 'page', $page);
+    }
+
+    /**
+     * Get replies for a specific comment with pagination
+     *
+     * @param int $commentId
+     * @param array $filters
+     * @return LengthAwarePaginator
+     */
+    public function getCommentReplies(int $commentId, array $filters = []): LengthAwarePaginator
+    {
+        $perPage = $filters['per_page'] ?? 15;
+        $page = $filters['page'] ?? 1;
+
+        $query = CommentModel::with($this->getCommentRelations())
+            ->withCount('replies')
+            ->where('parent_comment_id', $commentId)
+            ->orderBy('created_at', 'desc');
+
+        return $query->paginate($perPage, ['*'], 'page', $page);
+    }
+
+    /**
+     * Get all replies for a comment thread recursively
+     * This is useful for getting the entire conversation thread
+     *
+     * @param int $rootCommentId
+     * @return Collection
+     */
+    public function getCommentThread(int $rootCommentId): Collection
+    {
+        // Get the root comment
+        $rootComment = CommentModel::with($this->getCommentRelations())
+            ->withCount('replies')
+            ->findOrFail($rootCommentId);
+
+        // Get all replies in the thread
+        $allReplies = $this->getAllRepliesRecursive($rootCommentId);
+
+        // Return as a collection with the root comment first
+        return collect([$rootComment])->merge($allReplies);
+    }
+
+    /**
+     * Helper method to get all replies recursively
+     *
+     * @param int $commentId
+     * @return Collection
+     */
+    private function getAllRepliesRecursive(int $commentId): Collection
+    {
+        $replies = CommentModel::with($this->getCommentRelations())
+            ->withCount('replies')
+            ->where('parent_comment_id', $commentId)
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        $allReplies = collect($replies);
+
+        foreach ($replies as $reply) {
+            if ($reply->replies_count > 0) {
+                $allReplies = $allReplies->merge($this->getAllRepliesRecursive($reply->id));
+            }
+        }
+
+        return $allReplies;
+    }
+
+    /**
+     * Helper method to define common relations to load with comments
+     *
+     * @return array
+     */
+    private function getCommentRelations(): array
+    {
+        return [
+            'user' => function ($query) {
+                $query->with(['company', 'portfolio']);
+            },
+            'replies' => function ($query) {
+                $query->with([
+                    'user' => function ($query) {
+                        $query->with(['company', 'portfolio']);
+                    },
+                    'interactions',
+                ])->oldest()->limit(1);
+            },
+            'interactions'
+        ];
     }
 
     /**

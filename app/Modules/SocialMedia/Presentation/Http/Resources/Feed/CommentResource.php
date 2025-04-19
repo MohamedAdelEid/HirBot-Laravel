@@ -49,6 +49,7 @@ class CommentResource extends JsonResource
             'content' => $this->content,
             'image_path' => $this->image_path,
             'replies' => CommentResource::collection($this->whenLoaded('replies')),
+            'replies_count' => $this->when(isset($this->replies_count), $this->replies_count),
             'interactions_count' => $interactionCounts,
             'total_interactions' => $this->whenLoaded('interactions', function () {
                 return $this->interactions->count();

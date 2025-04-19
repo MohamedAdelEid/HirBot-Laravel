@@ -41,10 +41,20 @@ Route::middleware(['auth', 'role:' . UserRoleEnum::COMPANY->value . ',' . UserRo
 
             /*
             |--------------------------------------------------------------------------
+            | Poll Voting Routes (Nested Under Posts)
+            |--------------------------------------------------------------------------
+            */
+            Route::post('poll/vote', 'votePoll')->name('poll.vote');
+            Route::delete('poll/{pollId}/vote', 'removeVote')->name('poll.remove-vote');
+
+            /*
+            |--------------------------------------------------------------------------
             | Comments Routes (Nested Under Posts)
             |--------------------------------------------------------------------------
             */
             Route::get('{postId}/comments', [CommentController::class, 'index'])->name('comments.index');
+            Route::get('comments/{commentId}/replies', [CommentController::class, 'getReplies'])->name('comments.replies');
+            Route::get('comments/{commentId}/thread', [CommentController::class, 'getThread'])->name('comments.thread');
             Route::post('{postId}/comments', [CommentController::class, 'store'])->name('comments.store');
             Route::delete('comments/{commentId}', [CommentController::class ,'destroy'])->name('comments.destroy');
             Route::post('comments/{commentId}/interact', [CommentController::class ,'interact'])->name('comments.interact');

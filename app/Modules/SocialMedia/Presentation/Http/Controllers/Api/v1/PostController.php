@@ -4,17 +4,20 @@ namespace App\Modules\SocialMedia\Presentation\Http\Controllers\Api\v1;
 
 use App\Modules\SocialMedia\Application\Facades\InteractionFacade;
 use App\Modules\SocialMedia\Application\Facades\PostFacade;
+use App\Modules\SocialMedia\Application\Facades\PollFacade;
 use App\Modules\SocialMedia\Application\Facades\PostViewFacade;
 use App\Modules\SocialMedia\Domain\Enums\Interaction\InteractableTargetTypeEnum;
 use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\PostModel;
+use App\Modules\SocialMedia\Presentation\Http\Requests\Poll\VotePollRequest;
+use App\Modules\SocialMedia\Presentation\Http\Resources\Poll\PollVoteResource;
 use App\Modules\SocialMedia\Presentation\Http\Requests\Interaction\CreateInteractionRequest;
 use App\Modules\SocialMedia\Presentation\Http\Requests\Post\CreatePostRequest;
 use App\Modules\SocialMedia\Presentation\Http\Requests\Post\GetAllPostsRequest;
 use App\Modules\SocialMedia\Presentation\Http\Requests\Post\GetPostCommentsRequest;
 use App\Modules\SocialMedia\Presentation\Http\Requests\Post\GetPostInteractionsRequest;
 use App\Modules\SocialMedia\Presentation\Http\Requests\Post\UpdatePostRequest;
-use App\Modules\SocialMedia\Presentation\Http\Resources\Feed\InteractionResource;
 use App\Modules\SocialMedia\Presentation\Http\Resources\Post\PostResource;
+use App\Modules\SocialMedia\Presentation\Http\Resources\Feed\InteractionResource;
 use App\Shared\Interfaces\ResponseInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
@@ -226,4 +229,43 @@ class PostController extends Controller
         }
     }
 
+    /**
+     * Vote on a poll option
+     *
+     * @param VotePollRequest $request
+     * @return JsonResponse
+     */
+    public function votePoll(VotePollRequest $request): JsonResponse
+    {
+        try {
+            $vote = PollFacade::vote($request->validated());
+
+            return $this->response->success(
+                new PollVoteResource($vote),
+                'Poll vote recorded successfully'
+            );
+        } catch (\Exception $e) {
+            return $this->response->error('Error voting on poll', $e->getMessage());
+        }
+    }
+
+    /**
+     * Remove a vote from a poll
+     *
+     * @param int $pollId
+     * @return JsonResponse
+     */
+    public function removeVote(int $pollId): JsonResponse
+    {
+        try {
+            $result = PollFacade::removeVote(Auth::user()->Id, $pollId);
+
+            return $this->response->success(
+                null,
+                'Poll vote removed successfully'
+            );
+        } catch (\Exception $e) {
+            return $this->response->error('Error removing poll vote', $e->getMessage(), $e->getCode());
+        }
+    }
 }

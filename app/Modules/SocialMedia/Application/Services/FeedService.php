@@ -57,11 +57,28 @@ class FeedService
                 'user' => function($query) {
                     $query->with(['company', 'portfolio', 'requestedConnections', 'receivedConnections']);
                 },
-                // Only load the last two comments with their users
-                'comments' => function($query) {
-                    $query->with(['replies' , 'interactions'])->latest()->limit(2)->with(['user' => function($query) {
-                        $query->with(['company', 'portfolio']);
-                    }]);
+                // Only load the last two comments "recent_comment Only top-level" with their users
+                'comments' => function ($query) {
+                    $query->whereNull('comments.parent_comment_id')
+                        ->latest()
+                        ->limit(2)
+                        ->with([
+                            // Load the user of the comment with their company and portfolio
+                            'user' => function ($query) {
+                                $query->with(['company', 'portfolio']);
+                            },
+                            // Load only first replies of the comment
+                            'replies' => function ($query) {
+                                $query->with([
+                                    'user' => function ($query) {
+                                        $query->with(['company', 'portfolio']);
+                                    },
+                                    'interactions'
+                                ])->oldest()->limit(1);
+                            },
+                            // Load interactions on the comment itself
+                            'interactions'
+                        ]);
                 },
                 // Load the last interaction for notification purposes
                 'interactions' => function($query) use ($connectedUserIds) {

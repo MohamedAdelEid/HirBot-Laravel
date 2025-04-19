@@ -7,6 +7,7 @@ use App\Modules\SocialMedia\Application\Facades\InteractionFacade;
 use App\Modules\SocialMedia\Domain\Enums\Interaction\InteractableTargetTypeEnum;
 use App\Modules\SocialMedia\Presentation\Http\Requests\Comment\CreateCommentRequest;
 use App\Modules\SocialMedia\Presentation\Http\Requests\Comment\GetCommentsRequest;
+use App\Modules\SocialMedia\Presentation\Http\Requests\Comment\GetRepliesRequest;
 use App\Modules\SocialMedia\Presentation\Http\Requests\Interaction\CreateInteractionRequest;
 use App\Modules\SocialMedia\Presentation\Http\Resources\Feed\CommentResource;
 use App\Modules\SocialMedia\Presentation\Http\Resources\Feed\InteractionResource;
@@ -19,7 +20,8 @@ class CommentController extends Controller
 {
     public function __construct(
         private readonly ResponseInterface $response
-    ) {}
+    ) {
+    }
 
     /**
      * Get comments for a post
@@ -39,6 +41,47 @@ class CommentController extends Controller
             );
         } catch (\Exception $e) {
             return $this->response->error('Error retrieving comments', $e->getMessage());
+        }
+    }
+
+    /**
+     * Get replies for a comment
+     *
+     * @param GetRepliesRequest $request
+     * @param int $commentId
+     * @return JsonResponse
+     */
+    public function getReplies(GetRepliesRequest $request, int $commentId): JsonResponse
+    {
+        try {
+            $replies = CommentFacade::getCommentReplies($commentId, $request->validated());
+
+            return $this->response->paginated(
+                CommentResource::collection($replies),
+                'Replies retrieved successfully'
+            );
+        } catch (\Exception $e) {
+            return $this->response->error('Error retrieving replies', $e->getMessage());
+        }
+    }
+
+    /**
+     * Get the entire comment thread
+     *
+     * @param int $commentId
+     * @return JsonResponse
+     */
+    public function getThread(int $commentId): JsonResponse
+    {
+        try {
+            $thread = CommentFacade::getCommentThread($commentId);
+
+            return $this->response->success(
+                CommentResource::collection($thread),
+                'Comment thread retrieved successfully'
+            );
+        } catch (\Exception $e) {
+            return $this->response->error('Error retrieving comment thread', $e->getMessage());
         }
     }
 
@@ -64,6 +107,26 @@ class CommentController extends Controller
     }
 
     /**
+     * Delete a comment
+     *
+     * @param int $commentId
+     * @return JsonResponse
+     */
+    public function destroy(int $commentId): JsonResponse
+    {
+        try {
+            $result = CommentFacade::deleteComment($commentId, Auth::user()->Id);
+
+            return $this->response->success(
+                null,
+                'Comment deleted successfully'
+            );
+        } catch (\Exception $e) {
+            return $this->response->error('Error deleting comment', $e->getMessage(), $e->getCode());
+        }
+    }
+
+    /**
      * Create a comment interaction
      *
      * @param CreateInteractionRequest $request
@@ -85,26 +148,6 @@ class CommentController extends Controller
             );
         } catch (\Exception $e) {
             return $this->response->error('Error creating comment interaction', $e->getMessage());
-        }
-    }
-
-    /**
-     * Delete a comment
-     *
-     * @param int $commentId
-     * @return JsonResponse
-     */
-    public function destroy(int $commentId): JsonResponse
-    {
-        try {
-            $result = CommentFacade::deleteComment($commentId, Auth::user()->Id);
-
-            return $this->response->success(
-                null,
-                'Comment deleted successfully'
-            );
-        } catch (\Exception $e) {
-            return $this->response->error('Error deleting comment', $e->getMessage(), $e->getCode());
         }
     }
 
