@@ -13,6 +13,10 @@ class CommentModel extends Model
 {
     use HasFactory;
 
+    protected static function newFactory()
+    {
+        return \App\Modules\SocialMedia\Database\Factories\CommentModelFactory::new();
+    }
     protected $table = 'comments';
 
     protected $fillable = [

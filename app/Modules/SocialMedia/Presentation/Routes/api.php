@@ -34,7 +34,7 @@ Route::middleware(['auth', 'role:' . UserRoleEnum::COMPANY->value . ',' . UserRo
         |--------------------------------------------------------------------------
         */
         Route::prefix('posts')->controller(PostController::class)->group(function () {
-            Route::apiResource('/', PostController::class)->except(['create', 'edit']);
+            Route::apiResource('', PostController::class)->parameters(['' => 'post']) ->except(['create', 'edit']);
             Route::delete('{id}/force', 'forceDestroy')->name('posts.force-destroy');
             Route::post('{postId}/interact', 'interact')->name('posts.interact');
             Route::delete('{postId}/interact', 'removeInteraction')->name('posts.remove-interaction');
@@ -52,11 +52,12 @@ Route::middleware(['auth', 'role:' . UserRoleEnum::COMPANY->value . ',' . UserRo
             | Comments Routes (Nested Under Posts)
             |--------------------------------------------------------------------------
             */
+            Route::post('{postId}/comments', [CommentController::class, 'store'])->name('comments.store');
+            Route::put('comments/{commentId}', [CommentController::class, 'update'])->name('comments.update');
+            Route::delete('comments/{commentId}', [CommentController::class ,'destroy'])->name('comments.destroy');
             Route::get('{postId}/comments', [CommentController::class, 'index'])->name('comments.index');
             Route::get('comments/{commentId}/replies', [CommentController::class, 'getReplies'])->name('comments.replies');
             Route::get('comments/{commentId}/thread', [CommentController::class, 'getThread'])->name('comments.thread');
-            Route::post('{postId}/comments', [CommentController::class, 'store'])->name('comments.store');
-            Route::delete('comments/{commentId}', [CommentController::class ,'destroy'])->name('comments.destroy');
             Route::post('comments/{commentId}/interact', [CommentController::class ,'interact'])->name('comments.interact');
             Route::delete('comments/{commentId}/interact', [CommentController::class , 'removeInteraction'])->name('comments.remove-interaction');
         });

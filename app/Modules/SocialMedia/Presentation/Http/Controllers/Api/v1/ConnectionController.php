@@ -82,7 +82,7 @@ class ConnectionController extends Controller
             $connection = ConnectionFacade::rejectConnectionRequest($request->validated());
 
             return $this->response->success(
-                new ConnectionResource($connection),
+                null,
                 'Connection request rejected successfully'
             );
         } catch (UnauthorizedConnectionRequestException $e) {

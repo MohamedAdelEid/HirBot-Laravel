@@ -17,14 +17,12 @@
     },
     "autoload": {
         "psr-4": {
-            "App\\Modules\\SocialMedia\\": "app/",
-            "App\\Modules\\SocialMedia\\Database\\Factories\\": "database/factories/",
-            "App\\Modules\\SocialMedia\\Database\\Seeders\\": "database/seeders/"
+            "App\\Modules\\SocialMedia\\": "app/Modules/SocialMedia/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "App\\Modules\\SocialMedia\\Tests\\": "tests/"
+            "App\\Modules\\SocialMedia\\Tests\\": "app/Modules/SocialMedia/Tests/"
         }
     }
 }

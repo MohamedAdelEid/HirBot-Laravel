@@ -52,6 +52,12 @@ class PostController extends Controller
         }
     }
 
+
+    /**
+     * Create a new post
+     * @param CreatePostRequest $request
+     * @return JsonResponse
+     */
     public function store(CreatePostRequest $request): JsonResponse
     {
         try {
@@ -85,6 +91,13 @@ class PostController extends Controller
         }
     }
 
+    /**
+     * Update a post
+     *
+     * @param UpdatePostRequest $request
+     * @param PostModel $post
+     * @return JsonResponse
+     */
     public function update(UpdatePostRequest $request, PostModel $post): JsonResponse
     {
         try {
@@ -110,7 +123,7 @@ class PostController extends Controller
 
             return $this->response->success(null, 'Post deleted successfully');
         } catch (\Exception $e) {
-            return $this->response->error('Error deleting post', $e->getMessage());
+            return $this->response->error('Error deleting post', $e->getMessage(), $e->getCode());
         }
     }
 
@@ -130,7 +143,7 @@ class PostController extends Controller
 
             return $this->response->success(null, 'Post permanently deleted successfully');
         } catch (\Exception $e) {
-            return $this->response->error('Error deleting post', $e->getMessage());
+            return $this->response->error('Error deleting post', $e->getMessage(), $e->getCode());
         }
     }
 

@@ -27,4 +27,16 @@ class CommentFacade extends Facade
         return static::getFacadeRoot()->createComment($dto);
     }
 
+    /**
+     * Update a comment
+     * @param array $data
+     * @param int $commentId
+     * @return CommentModel
+     */
+    public static function updateComment(array $data, int $commentId): CommentModel
+    {
+        $dto = CreateCommentDTO::fromRequest($data, $commentId);
+        return static::getFacadeRoot()->updateComment($dto);
+    }
+
 }

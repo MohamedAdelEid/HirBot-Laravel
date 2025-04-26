@@ -127,6 +127,26 @@ class CommentController extends Controller
     }
 
     /**
+     * Update a comment
+     * @param CreateCommentRequest $request
+     * @param int $commentId
+     * @return JsonResponse
+     */
+    public function update(CreateCommentRequest $request, int $commentId): JsonResponse
+    {
+        try {
+            $comment = CommentFacade::updateComment($request->validated(), $commentId);
+
+            return $this->response->success(
+                new CommentResource($comment),
+                'Comment updated successfully'
+            );
+        } catch (\Exception $e) {
+            return $this->response->error('Error updating comment', $e->getMessage(), $e->getCode());
+        }
+    }
+
+    /**
      * Create a comment interaction
      *
      * @param CreateInteractionRequest $request

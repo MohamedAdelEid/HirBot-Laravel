@@ -7,6 +7,7 @@ use App\Modules\SocialMedia\Domain\Enums\Post\PrivacyCommentsEnum;
 use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\PollModel;
 use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\PostMediaModel;
 use App\Shared\Models\User;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -16,7 +17,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PostModel extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
+
+    protected static function newFactory()
+    {
+        return \App\Modules\SocialMedia\Database\Factories\PostModelFactory::new();
+    }
 
     protected $table = 'posts';
 

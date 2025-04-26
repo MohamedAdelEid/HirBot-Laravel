@@ -76,3 +76,22 @@ Broadcast::channel('poll.{pollId}', function ($user, $pollId) {
     // You can add more complex logic here based on your requirements
     return true;
 });
+
+Broadcast::channel('user.{userId}', function ($user, $userId) {
+    // Users can only listen to their own channels
+    return $user->Id === $userId;
+});
+
+// Allow authenticated users to listen to connection request channels
+Broadcast::channel('connection.{receiverId}', function ($user, $receiverId) {
+    // Check if the user is the receiver of the connection request
+    if ($user->Id === $receiverId) {
+        return true;
+    }
+
+    // You can add more checks based on your requirements, such as:
+    // - Allowing the requester to listen to their own connection requests.
+    // - Allowing both users to listen to the connection channel if needed.
+
+    return false;
+});

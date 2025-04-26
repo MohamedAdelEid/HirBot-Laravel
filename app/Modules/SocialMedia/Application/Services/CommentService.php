@@ -80,6 +80,57 @@ class CommentService
         }
     }
 
+    /**
+     * Update a comment
+     * @param CreateCommentDTO $dto
+     * @return CommentModel
+     */
+    public function updateComment(CreateCommentDTO $dto): CommentModel
+    {
+        try {
+            DB::beginTransaction();
+
+            // Check if comment exists
+            $comment = $this->repository->find($dto->postId);
+            if (!$comment) {
+                throw new \Exception('Comment not found', 404);
+            }
+
+            if ($comment->user_id !== $dto->userId) {
+                throw new \Exception('Unauthorized to update this comment', 403);
+            }
+
+            // Handle image upload if provided
+            $imagePath = null;
+            if ($dto->image) {
+                $nameFile = Str::random(10);
+                $imagePath = FileUploader::upload(
+                    $dto->image,
+                    'image',
+                    $nameFile,
+                    "posts/" . $dto->postId . "/comments",
+                    'azure',
+                );
+            }
+
+            // Update the comment
+            $comment->update([
+                'content' => $dto->content,
+                'image_path' => $imagePath,
+                'parent_comment_id' => $dto->parentCommentId,
+            ]);
+
+            $comment->load(['user' , 'replies' , 'interactions']);
+
+            DB::commit();
+
+            return $comment;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
    /**
      * Get comments for a post with pagination
      * Includes only the first reply for each comment and the total reply count

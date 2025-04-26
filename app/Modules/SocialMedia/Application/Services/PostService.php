@@ -17,6 +17,7 @@ use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\PollModel
 use App\Shared\Repositories\BaseRepository;
 use App\Shared\Facades\Video;
 use App\Shared\Facades\FileUploader;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -343,6 +344,12 @@ class PostService
 
             $this->repository->setModel(new PostModel());
 
+            $post = $this->repository->findOrFail($postId);
+
+            if ($post->user_id !== Auth::id()) {
+                throw new \Exception('You do not have permission to delete this post.' , 403);
+            }
+
             // Soft delete the post
             $this->repository->delete($postId);
 
@@ -369,6 +376,10 @@ class PostService
             // Find the post
             $this->repository->setModel(new PostModel());
             $post = $this->repository->findOrFail($postId);
+
+            if ($post->user_id !== Auth::id()) {
+                throw new \Exception('You do not have permission to delete this post.' , 403);
+            }
 
             // Delete media files from storage
             foreach ($post->media as $media) {
@@ -424,25 +435,6 @@ class PostService
         $page = $filters['page'] ?? 1;
 
         $query = CommentModel::with(['user:Id,name,profile_image'])
-            ->where('post_id', $postId)
-            ->orderBy('created_at', 'desc');
-
-        return $query->paginate($perPage, ['*'], 'page', $page);
-    }
-
-    /**
-     * Get all interactions for a post
-     *
-     * @param int $postId
-     * @param array $filters
-     * @return LengthAwarePaginator
-     */
-    public function getPostInteractions(int $postId, array $filters = []): LengthAwarePaginator
-    {
-        $perPage = $filters['per_page'] ?? 15;
-        $page = $filters['page'] ?? 1;
-
-        $query = InteractionModel::with(['user:Id,name,profile_image'])
             ->where('post_id', $postId)
             ->orderBy('created_at', 'desc');
 

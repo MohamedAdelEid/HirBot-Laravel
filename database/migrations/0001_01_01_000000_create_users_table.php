@@ -11,15 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Schema::create('users', function (Blueprint $table) {
-        //     $table->id();
-        //     $table->string('name');
-        //     $table->string('email')->unique();
-        //     $table->timestamp('email_verified_at')->nullable();
-        //     $table->string('password');
-        //     $table->rememberToken();
-        //     $table->timestamps();
-        // });
+        Schema::create('users', function (Blueprint $table) {
+            $table->string('Id', 255)->collation('utf8mb4_general_ci')->primary();
+            $table->string('FullName', 1000);
+            $table->unsignedTinyInteger('role');
+            $table->boolean('EmailConfirmed')->default(false);
+            $table->boolean('IsVerified')->default(false);
+            $table->boolean('PhoneNumberConfirmed')->default(false);
+            $table->boolean('TwoFactorEnabled')->default(false);
+            $table->boolean('LockoutEnabled')->default(false);
+            $table->integer('AccessFailedCount')->default(0);
+            $table->timestamps();
+        });
 
         // Schema::create('password_reset_tokens', function (Blueprint $table) {
         //     $table->string('email')->primary();

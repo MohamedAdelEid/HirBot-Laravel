@@ -3,6 +3,7 @@
 namespace App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models;
 
 use App\Modules\SocialMedia\Domain\Enums\Post\PostMediaTypeEnum;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\PostModel;
@@ -10,6 +11,12 @@ use Illuminate\Support\Facades\Storage;
 
 class PostMediaModel extends Model
 {
+    use HasFactory;
+
+    protected static function newFactory()
+    {
+        return \App\Modules\SocialMedia\Database\Factories\PostMediaModelFactory::new();
+    }
     protected $table = 'post_media';
 
     protected $fillable = [

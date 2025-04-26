@@ -2,6 +2,7 @@
 
 namespace App\Modules\SocialMedia\Application\Services;
 
+use App\Modules\SocialMedia\Application\Events\NewConnectionRequest;
 use App\Modules\SocialMedia\Application\Exceptions\Connection\ConnectionExistsException;
 use App\Modules\SocialMedia\Application\Exceptions\Connection\ConnectionRequestAlreadyProcessedException;
 use App\Modules\SocialMedia\Application\Exceptions\Connection\SelfConnectionException;
@@ -87,6 +88,8 @@ class ConnectionService
             $connection = $this->repository->create($connectionEntity->toArray());
             $connection->load(['requester', 'receiver']);
 
+            event(new NewConnectionRequest($connection));
+
             DB::commit();
 
             return $connection;
@@ -150,9 +153,9 @@ class ConnectionService
      *
      * @param int $connectionId
      * @param string $userId User rejecting the request
-     * @return ConnectionModel
+     * @return bool
      */
-    public function rejectConnectionRequest(int $connectionId, string $userId): ConnectionModel
+    public function rejectConnectionRequest(int $connectionId, string $userId): bool
     {
         try {
             DB::beginTransaction();
@@ -169,19 +172,11 @@ class ConnectionService
                 throw new ConnectionRequestAlreadyProcessedException();
             }
 
-            // Create connection entity and update status
-            $connectionEntity = new Connection(
-                $connection->requester_id,
-                $connection->receiver_id,
-                ConnectionStatusEnum::REJECTED,
-                $connection->type
-            );
-
-            $connection = $this->repository->update($connectionId, $connectionEntity->toArray());
+            $connection = $this->repository->delete($connectionId);
 
             DB::commit();
 
-            return $connection;
+            return true;
         } catch (UnauthorizedConnectionRequestException | ConnectionRequestAlreadyProcessedException $e) {
             DB::rollBack();
             throw $e;

@@ -14,6 +14,11 @@ class InteractionModel extends Model
 {
     use HasFactory;
 
+    protected static function newFactory()
+    {
+        return \App\Modules\SocialMedia\Database\Factories\InteractionModelFactory::new();
+    }
+
     protected $table = 'interactions';
 
     protected $cast = [

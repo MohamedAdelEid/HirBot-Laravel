@@ -2,6 +2,7 @@
 
 namespace App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -9,6 +10,13 @@ use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\PostModel
 
 class PollModel extends Model
 {
+    use HasFactory;
+
+    protected static function newFactory()
+    {
+        return \App\Modules\SocialMedia\Database\Factories\PollModelFactory::new();
+    }
+
     protected $table = 'polls';
 
     protected $fillable = [
