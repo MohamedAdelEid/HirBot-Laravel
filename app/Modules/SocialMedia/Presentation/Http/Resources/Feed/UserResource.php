@@ -55,9 +55,13 @@ class UserResource extends JsonResource
                            ($conn->receiver_id == $currentUserId && $conn->requester_id == $this->Id);
                 });
 
-                $userData['connection_status'] = $connection && $connection->status
-                    ? $connection->status->value
-                    : null;
+                if ($connection) {
+                    $userData['connection_status'] = $connection->status
+                        ? $connection->status->value
+                        : null;
+
+                    $userData['connection_direction'] = $connection->requester_id == $currentUserId ? 'sent' : 'received';
+                }
             }
         }
 
