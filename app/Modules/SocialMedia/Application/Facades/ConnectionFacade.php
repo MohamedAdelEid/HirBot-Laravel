@@ -43,7 +43,7 @@ class ConnectionFacade extends Facade
         );
     }
 
-    public static function rejectConnectionRequest(array $data): ConnectionModel
+    public static function rejectConnectionRequest(array $data): bool
     {
         $dto = ProcessConnectionDTO::fromRequest($data);
         return static::getFacadeRoot()->rejectConnectionRequest(

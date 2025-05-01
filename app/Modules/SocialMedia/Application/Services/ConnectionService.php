@@ -135,6 +135,7 @@ class ConnectionService
             );
 
             $connection = $this->repository->update($connectionId, $connectionEntity->toArray());
+            $connection->load(['requester', 'receiver']);
 
             DB::commit();
 
