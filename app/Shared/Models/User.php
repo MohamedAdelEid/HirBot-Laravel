@@ -2,7 +2,6 @@
 
 namespace App\Shared\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\ConnectionModel;
 use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\InteractionModel;
 use App\Shared\Enums\UserRoleEnum;
@@ -36,6 +35,7 @@ class User extends Authenticatable
         'email',
         'password',
         'profile_image',
+        'CurentJopID'
     ];
 
     protected $appends = [
@@ -115,9 +115,6 @@ class User extends Authenticatable
         return $this->hasOne(Company::class, 'UserID', 'Id');
     }
 
-    /**
-     * Get the user's portfolio information.
-     */
     public function portfolio(): HasOne
     {
         return $this->hasOne(Portfolio::class, 'UserID', 'Id');
@@ -128,5 +125,18 @@ class User extends Authenticatable
         return $this->hasMany(InteractionModel::class);
     }
 
+    public function experiences(): HasMany
+    {
+        return $this->hasMany(Experience::class, 'UserID', 'Id');
+    }
 
+    public function skills(): HasMany
+    {
+        return $this->hasMany(UserSkill::class, 'UserID', 'Id');
+    }
+
+    public function currentExperience(): HasOne
+    {
+        return $this->hasOne(Experience::class, 'UserID', 'Id')->where('IsStill', true)->where('CompanyID', $this->CurentJopID);
+    }
 }

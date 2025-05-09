@@ -7,9 +7,13 @@ use App\Modules\SocialMedia\Application\Exceptions\Connection\ConnectionRequestA
 use App\Modules\SocialMedia\Application\Exceptions\Connection\SelfConnectionException;
 use App\Modules\SocialMedia\Application\Exceptions\Connection\UnauthorizedConnectionRequestException;
 use App\Modules\SocialMedia\Application\Facades\ConnectionFacade;
+use App\Modules\SocialMedia\Presentation\Http\Requests\Connection\CompanySearchRequest;
+use App\Modules\SocialMedia\Presentation\Http\Requests\Connection\ConnectionSearchRequest;
 use App\Modules\SocialMedia\Presentation\Http\Requests\Connection\SendConnectionRequest;
 use App\Modules\SocialMedia\Presentation\Http\Requests\Connection\ProcessConnectionRequest;
+use App\Modules\SocialMedia\Presentation\Http\Resources\Connection\ConnectedUserResource;
 use App\Modules\SocialMedia\Presentation\Http\Resources\Connection\ConnectionResource;
+use App\Modules\SocialMedia\Presentation\Http\Resources\Connection\FollowedCompanyResource;
 use App\Shared\Controllers\Controller;
 use App\Shared\Interfaces\ResponseInterface;
 use Illuminate\Http\JsonResponse;
@@ -140,4 +144,75 @@ class ConnectionController extends Controller
             return $this->response->error('Error retrieving connections', $e->getMessage());
         }
     }
+
+    /**
+     * Get all connected users with pagination and search
+     *
+     * @param ConnectionSearchRequest $request
+     * @return JsonResponse
+     */
+    public function getConnectedUsers(ConnectionSearchRequest $request): JsonResponse
+    {
+        try {
+            $userId = Auth::user()->Id;
+            $search = $request->input('search', '');
+            $perPage = $request->input('per_page', 15);
+
+            $connections = ConnectionFacade::getConnectedUsersWithPagination($userId, $search, $perPage);
+
+            return $this->response->paginated(
+                ConnectedUserResource::collection($connections),
+                'Connected users retrieved successfully'
+            );
+        } catch (\Exception $e) {
+            return $this->response->error('Error retrieving connected users', $e->getMessage() );
+        }
+    }
+
+    /**
+     * Get all followed companies with pagination and search
+     *
+     * @param CompanySearchRequest $request
+     * @return JsonResponse
+     */
+    public function getFollowedCompanies(CompanySearchRequest $request): JsonResponse
+    {
+        try {
+            $userId = Auth::user()->Id;
+            $search = $request->input('search', '');
+            $perPage = $request->input('per_page', 15);
+
+            $companies = ConnectionFacade::getFollowedCompanies($userId, $search, $perPage);
+
+            return $this->response->paginated(
+                FollowedCompanyResource::collection($companies),
+                'Followed companies retrieved successfully'
+            );
+        } catch (\Exception $e) {
+            return $this->response->error('Error retrieving followed companies', $e->getMessage());
+        }
+    }
+
+    /**
+     * Get all pending connection requests with detailed information
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    // public function getPendingConnectionsDetailed(Request $request): JsonResponse
+    // {
+    //     try {
+    //         $userId = Auth::user()->Id;
+    //         $perPage = $request->input('per_page', 15);
+
+    //         $pendingConnections = ConnectionFacade::getPendingConnectionsDetailed($userId, $perPage);
+
+    //         return $this->response->paginated(
+    //             PendingConnectionResource::collection($pendingConnections),
+    //             'Pending connection requests retrieved successfully'
+    //         );
+    //     } catch (\Exception $e) {
+    //         return $this->response->error('Error retrieving pending connection requests', $e->getMessage());
+    //     }
+    // }
 }

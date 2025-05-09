@@ -75,11 +75,15 @@ Route::middleware(['auth', 'role:' . UserRoleEnum::COMPANY->value . ',' . UserRo
         |--------------------------------------------------------------------------
         */
         Route::prefix('connections')->controller(ConnectionController::class)->group(function () {
+            Route::get('/', 'getConnections')->name('connections.index');
             Route::post('/', 'sendRequest')->name('connections.send');
             Route::post('/accept', 'acceptRequest')->name('connections.accept');
             Route::post('/reject', 'rejectRequest')->name('connections.reject');
             Route::get('/pending', 'getPendingRequests')->name('connections.pending');
-            Route::get('/', 'getConnections')->name('connections.index');
+
+            Route::get('/connected-users', 'getConnectedUsers')->name('connections.connected-users');
+            Route::get('/followed-companies',  'getFollowedCompanies')->name('connections.followed-companies');
+            Route::get('/pending-detailed', 'getPendingConnectionsDetailed')->name('connections.pending-detailed');
         });
     });
 
