@@ -13,6 +13,8 @@ class Skill extends Model
     use HasFactory;
 
     protected $table = 'Skills';
+    protected $CREATED_AT = 'CreationDate';
+    protected $UPDATED_AT = 'ModificationDate';
 
     protected $fillable = [
         'Name',

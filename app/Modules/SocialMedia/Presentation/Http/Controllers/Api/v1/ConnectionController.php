@@ -14,6 +14,7 @@ use App\Modules\SocialMedia\Presentation\Http\Requests\Connection\ProcessConnect
 use App\Modules\SocialMedia\Presentation\Http\Resources\Connection\ConnectedUserResource;
 use App\Modules\SocialMedia\Presentation\Http\Resources\Connection\ConnectionResource;
 use App\Modules\SocialMedia\Presentation\Http\Resources\Connection\FollowedCompanyResource;
+use App\Modules\SocialMedia\Presentation\Http\Resources\Connection\PendingConnectionResource;
 use App\Shared\Controllers\Controller;
 use App\Shared\Interfaces\ResponseInterface;
 use Illuminate\Http\JsonResponse;
@@ -199,20 +200,20 @@ class ConnectionController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    // public function getPendingConnectionsDetailed(Request $request): JsonResponse
-    // {
-    //     try {
-    //         $userId = Auth::user()->Id;
-    //         $perPage = $request->input('per_page', 15);
+    public function getPendingConnectionsDetailed(Request $request): JsonResponse
+    {
+        try {
+            $userId = Auth::user()->Id;
+            $perPage = $request->input('per_page', 15);
 
-    //         $pendingConnections = ConnectionFacade::getPendingConnectionsDetailed($userId, $perPage);
+            $pendingConnections = ConnectionFacade::getPendingConnectionsDetailed($userId, $perPage);
 
-    //         return $this->response->paginated(
-    //             PendingConnectionResource::collection($pendingConnections),
-    //             'Pending connection requests retrieved successfully'
-    //         );
-    //     } catch (\Exception $e) {
-    //         return $this->response->error('Error retrieving pending connection requests', $e->getMessage());
-    //     }
-    // }
+            return $this->response->paginated(
+                PendingConnectionResource::collection($pendingConnections),
+                'Pending connection requests retrieved successfully'
+            );
+        } catch (\Exception $e) {
+            return $this->response->error('Error retrieving pending connection requests', $e->getMessage());
+        }
+    }
 }

@@ -12,6 +12,8 @@ class UserSkill extends Model
     use HasFactory;
 
     protected $table = 'UserSkills';
+    protected $CREATED_AT = 'CreationDate';
+    protected $UPDATED_AT = 'ModificationDate';
 
     protected $fillable = [
         'UserID',

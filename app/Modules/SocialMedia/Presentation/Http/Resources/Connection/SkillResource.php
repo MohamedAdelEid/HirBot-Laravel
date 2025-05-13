@@ -4,7 +4,7 @@ namespace App\Modules\SocialMedia\Presentation\Http\Resources\Connection;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class UserMiniResource extends JsonResource
+class SkillResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,10 +15,9 @@ class UserMiniResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => $this->Id,
-            'name' => $this->FullName,
-            'user_name' => $this->UserName,
-            'profile_image' => $this->ProfileImage,
+            'id' => $this->ID,
+            'name' => $this->Name,
+            'image_path' => $this->ImagePath,
         ];
     }
 }

@@ -57,6 +57,6 @@ class Experience extends Model
      */
     public function company(): BelongsTo
     {
-        return $this->belongsTo(Company::class, 'CompanyID');
+        return $this->belongsTo(Company::class, 'CompanyID' , 'ID');
     }
 }

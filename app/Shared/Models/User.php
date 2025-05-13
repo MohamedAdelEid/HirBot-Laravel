@@ -6,6 +6,7 @@ use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\Connectio
 use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\InteractionModel;
 use App\Shared\Enums\UserRoleEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -130,13 +131,14 @@ class User extends Authenticatable
         return $this->hasMany(Experience::class, 'UserID', 'Id');
     }
 
-    public function skills(): HasMany
+    public function skills(): BelongsToMany
     {
-        return $this->hasMany(UserSkill::class, 'UserID', 'Id');
+        return $this->belongsToMany(Skill::class, 'UserSkills', 'UserID', 'SkillID')
+                    ->withPivot('Rate');
     }
 
     public function currentExperience(): HasOne
     {
-        return $this->hasOne(Experience::class, 'UserID', 'Id')->where('IsStill', true)->where('CompanyID', $this->CurentJopID);
+        return $this->hasOne(Experience::class, 'ID', 'CurentJopID')->where('IsStill', true);
     }
 }
