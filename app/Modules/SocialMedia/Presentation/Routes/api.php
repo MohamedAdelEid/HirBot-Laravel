@@ -80,10 +80,10 @@ Route::middleware(['auth', 'role:' . UserRoleEnum::COMPANY->value . ',' . UserRo
             Route::post('/accept', 'acceptRequest')->name('connections.accept');
             Route::post('/reject', 'rejectRequest')->name('connections.reject');
             Route::get('/pending', 'getPendingRequests')->name('connections.pending');
-
             Route::get('/connected-users', 'getConnectedUsers')->name('connections.connected-users');
             Route::get('/followed-companies',  'getFollowedCompanies')->name('connections.followed-companies');
             Route::get('/pending-detailed', 'getPendingConnectionsDetailed')->name('connections.pending-detailed');
+            Route::get('/suggestions',  'getSuggestions')->name('connections.suggestions');
         });
     });
 

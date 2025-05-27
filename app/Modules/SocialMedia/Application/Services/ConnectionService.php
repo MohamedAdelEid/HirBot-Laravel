@@ -172,9 +172,9 @@ class ConnectionService
             }
 
             // Ensure the connection is pending
-            if ($connection->status !== ConnectionStatusEnum::PENDING) {
-                throw new ConnectionRequestAlreadyProcessedException();
-            }
+            // if ($connection->status !== ConnectionStatusEnum::PENDING) {
+            //     throw new ConnectionRequestAlreadyProcessedException();
+            // }
 
             $connection = $this->repository->delete($connectionId);
 

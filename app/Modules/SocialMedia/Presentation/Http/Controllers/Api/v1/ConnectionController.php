@@ -7,12 +7,15 @@ use App\Modules\SocialMedia\Application\Exceptions\Connection\ConnectionRequestA
 use App\Modules\SocialMedia\Application\Exceptions\Connection\SelfConnectionException;
 use App\Modules\SocialMedia\Application\Exceptions\Connection\UnauthorizedConnectionRequestException;
 use App\Modules\SocialMedia\Application\Facades\ConnectionFacade;
+use App\Modules\SocialMedia\Application\Facades\ConnectionSuggestionFacade;
 use App\Modules\SocialMedia\Presentation\Http\Requests\Connection\CompanySearchRequest;
 use App\Modules\SocialMedia\Presentation\Http\Requests\Connection\ConnectionSearchRequest;
+use App\Modules\SocialMedia\Presentation\Http\Requests\Connection\ConnectionSuggestionRequest;
 use App\Modules\SocialMedia\Presentation\Http\Requests\Connection\SendConnectionRequest;
 use App\Modules\SocialMedia\Presentation\Http\Requests\Connection\ProcessConnectionRequest;
 use App\Modules\SocialMedia\Presentation\Http\Resources\Connection\ConnectedUserResource;
 use App\Modules\SocialMedia\Presentation\Http\Resources\Connection\ConnectionResource;
+use App\Modules\SocialMedia\Presentation\Http\Resources\Connection\ConnectionSuggestionResource;
 use App\Modules\SocialMedia\Presentation\Http\Resources\Connection\FollowedCompanyResource;
 use App\Modules\SocialMedia\Presentation\Http\Resources\Connection\PendingConnectionResource;
 use App\Shared\Controllers\Controller;
@@ -214,6 +217,29 @@ class ConnectionController extends Controller
             );
         } catch (\Exception $e) {
             return $this->response->error('Error retrieving pending connection requests', $e->getMessage());
+        }
+    }
+
+    /**
+     * Get connection suggestions for the authenticated user
+     *
+     * @param ConnectionSuggestionRequest $request
+     * @return JsonResponse
+     */
+    public function getSuggestions(ConnectionSuggestionRequest $request): JsonResponse
+    {
+        try {
+            $userId = Auth::user()->Id;
+            $perPage = $request->input('per_page', 15);
+
+            $suggestions = ConnectionSuggestionFacade::getSuggestions($userId, $perPage);
+
+            return $this->response->paginated(
+                ConnectionSuggestionResource::collection($suggestions),
+                'Connection suggestions retrieved successfully'
+            );
+        } catch (\Exception $e) {
+            return $this->response->error('Error retrieving connection suggestions', $e->getMessage());
         }
     }
 }

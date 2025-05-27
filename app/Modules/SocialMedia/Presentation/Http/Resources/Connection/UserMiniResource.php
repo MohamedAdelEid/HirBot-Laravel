@@ -18,7 +18,7 @@ class UserMiniResource extends JsonResource
             'id' => $this->Id,
             'name' => $this->FullName,
             'user_name' => $this->UserName,
-            'profile_image' => $this->ProfileImage,
+            'profile_image' => $this->ImagePath,
         ];
     }
 }

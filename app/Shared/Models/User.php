@@ -131,6 +131,11 @@ class User extends Authenticatable
         return $this->hasMany(Experience::class, 'UserID', 'Id');
     }
 
+    public function educations(): HasMany
+    {
+        return $this->hasMany(Education::class, 'UserID', 'Id');
+    }
+
     public function skills(): BelongsToMany
     {
         return $this->belongsToMany(Skill::class, 'UserSkills', 'UserID', 'SkillID')
