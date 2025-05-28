@@ -167,9 +167,9 @@ class ConnectionService
             $connection = $this->repository->findOrFail($connectionId);
 
             // Ensure the user is the receiver of the connection request
-            if ($connection->receiver_id !== $userId) {
-                throw new UnauthorizedConnectionRequestException('You are not authorized to reject this connection request.');
-            }
+            // if ($connection->receiver_id !== $userId) {
+            //     throw new UnauthorizedConnectionRequestException('You are not authorized to reject this connection request.');
+            // }
 
             // Ensure the connection is pending
             // if ($connection->status !== ConnectionStatusEnum::PENDING) {

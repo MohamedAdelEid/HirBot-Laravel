@@ -2,8 +2,11 @@
 
 namespace App\Shared\Providers;
 
+use App\Shared\Enums\NotifiableTypeEnum;
 use App\Shared\Helpers\ApiResponse;
 use App\Shared\Interfaces\ResponseInterface;
+use App\Shared\Models\Notification;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use League\Flysystem\AzureBlobStorage\AzureBlobStorageAdapter;
 use Illuminate\Support\ServiceProvider;
 use League\Flysystem\Filesystem;
@@ -73,5 +76,8 @@ class AppServiceProvider extends ServiceProvider
 
             return $driver;
         });
+
+        // Bootstrap any application services.
+        Relation::morphMap(NotifiableTypeEnum::getMorphMap());
     }
 }

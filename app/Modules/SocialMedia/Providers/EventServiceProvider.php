@@ -2,6 +2,8 @@
 
 namespace App\Modules\SocialMedia\Providers;
 
+use App\Modules\SocialMedia\Application\Events\NewPostEvent;
+use App\Modules\SocialMedia\Application\Listeners\SendNewPostNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider
@@ -11,7 +13,11 @@ class EventServiceProvider extends ServiceProvider
      *
      * @var array<string, array<int, string>>
      */
-    protected $listen = [];
+    protected $listen = [
+        NewPostEvent::class => [
+            SendNewPostNotification::class,
+        ],
+    ];
 
     /**
      * Indicates if events should be discovered.

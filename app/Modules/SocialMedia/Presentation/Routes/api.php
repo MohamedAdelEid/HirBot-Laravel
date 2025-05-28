@@ -3,6 +3,7 @@
 use App\Modules\SocialMedia\Presentation\Http\Controllers\Api\v1\CommentController;
 use App\Modules\SocialMedia\Presentation\Http\Controllers\Api\v1\ConnectionController;
 use App\Modules\SocialMedia\Presentation\Http\Controllers\Api\v1\FeedController;
+use App\Modules\SocialMedia\Presentation\Http\Controllers\Api\v1\NotificationController;
 use App\Modules\SocialMedia\Presentation\Http\Controllers\Api\v1\PostController;
 use App\Shared\Enums\UserRoleEnum;
 use Illuminate\Support\Facades\Route;
@@ -85,6 +86,31 @@ Route::middleware(['auth', 'role:' . UserRoleEnum::COMPANY->value . ',' . UserRo
             Route::get('/pending-detailed', 'getPendingConnectionsDetailed')->name('connections.pending-detailed');
             Route::get('/suggestions',  'getSuggestions')->name('connections.suggestions');
         });
+    });
+
+
+/*
+|--------------------------------------------------------------------------
+| Routes for Company & User & Admin Roles
+|--------------------------------------------------------------------------
+| Accessible by users with the "company", "user", or "admin" roles.
+| Includes: Posts, Comments, Feed, Connections, and Notifications.
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'role:' . UserRoleEnum::COMPANY->value . ',' . UserRoleEnum::USER->value . ',' . UserRoleEnum::ADMIN->value])
+    ->group(function () {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Notifications Routes
+        |--------------------------------------------------------------------------
+        |*/
+        Route::prefix('notifications')->group(function () {
+            Route::get('/', [NotificationController::class, 'index'])->name('notifications.index');
+            Route::patch('/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
+            Route::patch('/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
+        });
+
     });
 
 /*

@@ -4,6 +4,7 @@ namespace App\Modules\SocialMedia\Application\Services;
 
 use App\Modules\SocialMedia\Application\DTOs\Post\CreatePostDTO;
 use App\Modules\SocialMedia\Application\DTOs\Post\UpdatePostDTO;
+use App\Modules\SocialMedia\Application\Events\NewPostEvent;
 use App\Modules\SocialMedia\Domain\Entities\Post;
 use App\Modules\SocialMedia\Domain\Entities\PostMedia;
 use App\Modules\SocialMedia\Domain\Entities\Poll;
@@ -153,6 +154,9 @@ class PostService
                     }
                 }
             }
+
+            // Dispatch event to create notifications for connected users
+            event(new NewPostEvent($postModel));
 
             DB::commit();
 
