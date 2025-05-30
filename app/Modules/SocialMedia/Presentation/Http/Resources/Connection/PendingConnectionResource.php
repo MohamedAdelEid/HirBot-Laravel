@@ -16,7 +16,7 @@ class PendingConnectionResource extends JsonResource
     public function toArray($request)
     {
         $user = $this->requester;
-
+        // dump($user->portfolio->Title);
         return [
             'id' => $this->id,
             'user' => [
@@ -25,7 +25,7 @@ class PendingConnectionResource extends JsonResource
                 'username' => $user->UserName,
                 'email' => $user->Email,
                 'profile_image' => $user->ImagePath,
-                'title' => $user->portfolio ? $this->portfolio->Title : null,
+                'title' => $user->relationLoaded('portfolio') && $user->portfolio ? $user->portfolio->Title : null,
                 'current_company' => ( $user->currentExperience && $this->worksForFollowedCompany ) ? [
                     'id' => $user->currentExperience->company->ID,
                     'name' => $user->currentExperience->company->Name,
