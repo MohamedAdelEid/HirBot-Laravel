@@ -19,7 +19,8 @@ class ConnectionSuggestionResource extends JsonResource
             'name' => $this->FullName,
             'username' => $this->UserName,
             'email' => $this->Email,
-            'profile_image' => $this->ProfileImage,
+            'profile_image' => $this->ImagePath,
+            'title' => $this->portfolio ? $this->portfolio->Title : null,
             'address' => $this->portfolio ? $this->portfolio->location   : null,
             'current_company' => $this->when($this->currentExperience && $this->currentExperience->company, function () {
                 return [

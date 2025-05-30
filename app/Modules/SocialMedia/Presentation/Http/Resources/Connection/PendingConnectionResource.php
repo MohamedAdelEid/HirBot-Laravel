@@ -24,7 +24,8 @@ class PendingConnectionResource extends JsonResource
                 'name' => $user->FullName,
                 'username' => $user->UserName,
                 'email' => $user->Email,
-                'profile_image' => $user->ProfileImage,
+                'profile_image' => $user->ImagePath,
+                'title' => $user->portfolio ? $this->portfolio->Title : null,
                 'current_company' => ( $user->currentExperience && $this->worksForFollowedCompany ) ? [
                     'id' => $user->currentExperience->company->ID,
                     'name' => $user->currentExperience->company->Name,

@@ -22,7 +22,7 @@ class FollowedCompanyResource extends JsonResource
                 'user_name' => $this->receiver->UserName,
                 'email' => $this->receiver->Email,
                 'company_type' => $this->receiver->company->CompanyType ?? null,
-                'logo' => $this->receiver->ProfileImage,
+                'logo' => $this->receiver->ImagePath,
                 'created_at' => $this->receiver->created_at,
                 'updated_at' => $this->receiver->updated_at,
             ],

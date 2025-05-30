@@ -30,6 +30,7 @@ class ConnectedUserResource extends JsonResource
                 'username' => $connectedUser->UserName,
                 'email' => $connectedUser->Email,
                 'profile_image' => $connectedUser->ImagePath,
+                'title' => $connectedUser->portfolio ? $connectedUser->portfolio->Title : null,
             ],
         ];
     }

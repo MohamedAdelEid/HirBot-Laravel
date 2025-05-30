@@ -17,8 +17,10 @@ class UserMiniResource extends JsonResource
         return [
             'id' => $this->Id,
             'name' => $this->FullName,
+            'email' => $this->Email,
             'user_name' => $this->UserName,
             'profile_image' => $this->ImagePath,
+            'title' => $this->portfolio ? $this->portfolio->Title : null,
         ];
     }
 }
