@@ -3,9 +3,11 @@
 namespace App\Shared\Models;
 
 use App\Shared\Enums\NotifiableTypeEnum;
+use App\Shared\Enums\NotificationActionEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Facades\Auth;
 
 class Notification extends Model
 {
@@ -52,8 +54,8 @@ class Notification extends Model
      * @var array
      */
     protected $casts = [
-        'type' => NotifiableTypeEnum::class,
-        'Notifiable_Type' => 'integer',
+        'type' => NotificationActionEnum::class,
+        'Notifiable_Type' => NotifiableTypeEnum::class,
         'CreationDate' => 'datetime',
         'ModificationDate' => 'datetime',
     ];
@@ -87,12 +89,12 @@ class Notification extends Model
 
         static::creating(function ($model) {
             $model->CreationDate = now();
-            $model->CreatedBy = auth()->Id() ?? 'system';
+            $model->CreatedBy = Auth::user()->Id ?? 'system';
         });
 
         static::updating(function ($model) {
             $model->ModificationDate = now();
-            $model->ModifiedBy = auth()->Id() ?? 'system';
+            $model->ModifiedBy = Auth::user()->Id ?? 'system';
         });
     }
 }
