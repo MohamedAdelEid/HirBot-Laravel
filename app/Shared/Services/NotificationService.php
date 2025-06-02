@@ -2,10 +2,14 @@
 
 namespace App\Shared\Services;
 
+use App\Shared\DTOs\GetUserNotificationsDTO;
 use App\Shared\Enums\NotifiableTypeEnum;
+use App\Shared\Enums\NotificationActionEnum;
 use App\Shared\Events\NewNotificationEvent;
 use App\Shared\Models\Notification;
 use App\Shared\Models\NotificationReceiver;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -18,7 +22,7 @@ class NotificationService
      * Create a new notification.
      *
      * @param Model $notifiable The model that the notification is about
-     * @param NotifiableTypeEnum $type The notification type with sub-action
+     * @param NotificationActionEnum $action The notification action
      * @param string $message The notification message
      * @param array|Collection $receiverIds Array or collection of user IDs who should receive the notification
      * @param bool $broadcast Whether to broadcast the notification in real-time
@@ -26,7 +30,7 @@ class NotificationService
      */
     public function createNotification(
         Model $notifiable,
-        NotifiableTypeEnum $type,
+        NotificationActionEnum $action,
         string $message,
         array|Collection $receiverIds,
         bool $broadcast = true
@@ -39,7 +43,7 @@ class NotificationService
 
             // Create the notification
             $notification = new Notification([
-                'type' => $type->value,
+                'type' => $action->value,
                 'Notifiable_Type' => $notifiableType,
                 'Notifiable_ID' => $notifiable->getKey(),
                 'massage' => $message,
@@ -71,7 +75,7 @@ class NotificationService
                 'exception' => $e,
                 'notifiable' => get_class($notifiable),
                 'notifiable_id' => $notifiable->getKey(),
-                'type' => $type->value,
+                'action' => $action->value,
                 'message' => $message,
             ]);
 
@@ -80,39 +84,57 @@ class NotificationService
     }
 
     /**
-     * Get notifications for a user.
+     * Get notifications for a user with cursor-based pagination and filtering.
      *
-     * @param string $userId The user ID
-     * @param array|null $types Array of notification types to filter by
-     * @param int $perPage Number of items per page
-     * @param bool $onlyUnread Whether to only return unread notifications
+     * @param GetUserNotificationsDTO $dto
      * @return LengthAwarePaginator
      */
-    public function getUserNotifications(
-        string $userId,
-        ?array $types = null,
-        int $perPage = 15,
-        bool $onlyUnread = false
-    ): LengthAwarePaginator {
-        $query = NotificationReceiver::where('ReciverID', $userId)
-            ->with(['notification' => function ($query) use ($types) {
+    public function getUserNotifications(GetUserNotificationsDTO $dto): LengthAwarePaginator
+    {
+        // Base query
+        $query = NotificationReceiver::where('ReciverID', $dto->userId)
+            ->with(['notification' => function ($query) use ($dto) {
                 $query->with('notifiable');
-                if ($types) {
-                    $query->whereIn('type', $types);
+                if ($dto->types) {
+                    $query->whereIn('Notifiable_Type', $dto->types);
                 }
             }])
-            ->whereHas('notification', function ($query) use ($types) {
-                if ($types) {
-                    $query->whereIn('type', $types);
+            ->whereHas('notification', function ($query) use ($dto) {
+                if ($dto->types) {
+                    $query->whereIn('Notifiable_Type', $dto->types);
                 }
             });
 
-        if ($onlyUnread) {
-            $query->unread();
+        // Apply cursor-based pagination
+        if ($dto->after) {
+            try {
+                $afterDate = Carbon::parse($dto->after);
+                $query->where('CreationDate', '<', $afterDate);
+            } catch (\Exception $e) {
+                Log::warning("Invalid cursor format: {$dto->after}", ['exception' => $e->getMessage()]);
+            }
         }
 
-        return $query->orderBy('CreationDate', 'desc')
-            ->paginate($perPage);
+        // Apply read status filter
+        if ($dto->isRead !== null) {
+            if ($dto->isRead) {
+                $query->whereNotNull('read_at');
+            } else {
+                $query->whereNull('read_at');
+            }
+        }
+
+        // Apply search filter
+        if ($dto->search) {
+            $query->whereHas('notification', function (Builder $q) use ($dto) {
+                $q->where('massage', 'like', "%{$dto->search}%");
+            });
+        }
+
+        // Order by creation date (newest first)
+        $query->orderBy('CreationDate', 'desc');
+
+        return $query->paginate($dto->limit);
     }
 
     /**

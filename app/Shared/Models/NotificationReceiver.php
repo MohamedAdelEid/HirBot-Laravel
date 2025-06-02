@@ -6,6 +6,7 @@ use App\Shared\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class NotificationReceiver extends Model
 {
@@ -103,12 +104,12 @@ class NotificationReceiver extends Model
 
         static::creating(function ($model) {
             $model->CreationDate = now();
-            $model->CreatedBy = auth()->Id() ?? 'system';
+            $model->CreatedBy = Auth::user()->Id ?? 'system';
         });
 
         static::updating(function ($model) {
             $model->ModificationDate = now();
-            $model->ModifiedBy = auth()->Id() ?? 'system';
+            $model->ModifiedBy = Auth::user()->Id ?? 'system';
         });
     }
 }

@@ -2,14 +2,15 @@
 
 namespace App\Modules\SocialMedia\Presentation\Http\Controllers\Api\v1;
 
+use App\Modules\SocialMedia\Presentation\Http\Requests\Notification\NotificationRequest;
 use App\Shared\Controllers\Controller;
 use App\Shared\Enums\NotifiableTypeEnum;
 use App\Shared\Facades\NotificationFacade;
 use App\Shared\Interfaces\ResponseInterface;
 use App\Shared\Resources\NotificationReceiverResource;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class NotificationController extends Controller
 {
@@ -18,29 +19,46 @@ class NotificationController extends Controller
     ) {}
 
     /**
-     * Get social media notifications for the authenticated user.
+     * Get social media notifications for the authenticated user with cursor-based pagination.
      *
-     * @param Request $request
+     * @param NotificationRequest $request
      * @return JsonResponse
      */
-    public function index(Request $request): JsonResponse
+    public function index(NotificationRequest $request): JsonResponse
     {
         try {
-            $perPage = $request->query('per_page', 15);
-            $onlyUnread = $request->boolean('unread', false);
+            // Extract validated parameters from request
+            $after = $request->query('after');
+            $limit = (int) $request->query('limit', 15);
+            $isRead = $request->has('is_read') ? filter_var($request->query('is_read'), FILTER_VALIDATE_BOOLEAN) : null;
+            $search = $request->query('search');
 
+            // Get notification types from the request
+            $categories = $request->getNotificationTypes();
+
+            // Get notifications using the facade
             $notifications = NotificationFacade::getUserNotifications(
                 Auth::user()->Id,
-                NotifiableTypeEnum::socialMediaTypes(),
-                $perPage,
-                $onlyUnread
+                $categories,
+                $after ?? '',
+                $limit,
+                $isRead,
+                $search
             );
 
-            return $this->response->success(
-                NotificationReceiverResource::collection($notifications),
+            // Transform the data
+            $resourceCollection = NotificationReceiverResource::collection($notifications);
+
+            // Return cursor-paginated response
+            return $this->response->cursorPaginated(
+                $resourceCollection ,
                 'Notifications retrieved successfully'
             );
         } catch (\Exception $e) {
+            Log::error('Error retrieving notifications: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString()
+            ]);
             return $this->response->error('Error retrieving notifications', $e->getMessage());
         }
     }

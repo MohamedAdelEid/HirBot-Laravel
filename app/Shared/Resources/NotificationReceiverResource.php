@@ -2,7 +2,7 @@
 
 namespace App\Shared\Resources;
 
-use App\Shared\Enums\NotifiableTypeEnum;
+use App\Shared\Enums\NotificationActionEnum;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class NotificationReceiverResource extends JsonResource
@@ -23,7 +23,7 @@ class NotificationReceiverResource extends JsonResource
             'type' => [
                 'value' => $notification->type->value,
                 'label' => $notification->type->label(),
-                'category' => $notification->type->category(),
+                'category' => $notification->Notifiable_Type->category(),
                 'action' => $notification->type->action(),
             ],
             'message' => $notification->massage,
@@ -49,17 +49,17 @@ class NotificationReceiverResource extends JsonResource
         }
 
         return match($notification->type) {
-            NotifiableTypeEnum::POST_CREATED => $this->getPostCreatedMetaData($notifiable),
-            NotifiableTypeEnum::POST_COMMENTED => $this->getPostCommentedMetaData($notifiable),
-            NotifiableTypeEnum::POST_LIKED => $this->getPostLikedMetaData($notifiable),
-            NotifiableTypeEnum::POST_SHARED => $this->getPostSharedMetaData($notifiable),
-            NotifiableTypeEnum::CONNECTION_REQUEST_SENT => $this->getConnectionRequestSentMetaData($notifiable),
-            NotifiableTypeEnum::CONNECTION_REQUEST_ACCEPTED => $this->getConnectionRequestAcceptedMetaData($notifiable),
-            NotifiableTypeEnum::CONNECTION_REQUEST_REJECTED => $this->getConnectionRequestRejectedMetaData($notifiable),
-            NotifiableTypeEnum::COMMENT_LIKED => $this->getCommentLikedMetaData($notifiable),
-            NotifiableTypeEnum::COMMENT_REPLIED => $this->getCommentRepliedMetaData($notifiable),
-            NotifiableTypeEnum::POLL_VOTED => $this->getPollVotedMetaData($notifiable),
-            NotifiableTypeEnum::POLL_ENDED => $this->getPollEndedMetaData($notifiable),
+            NotificationActionEnum::POST_CREATED => $this->getPostCreatedMetaData($notifiable),
+            NotificationActionEnum::POST_COMMENTED => $this->getPostCommentedMetaData($notifiable),
+            NotificationActionEnum::POST_LIKED => $this->getPostLikedMetaData($notifiable),
+            NotificationActionEnum::POST_SHARED => $this->getPostSharedMetaData($notifiable),
+            NotificationActionEnum::CONNECTION_REQUEST_SENT => $this->getConnectionRequestSentMetaData($notifiable),
+            NotificationActionEnum::CONNECTION_REQUEST_ACCEPTED => $this->getConnectionRequestAcceptedMetaData($notifiable),
+            NotificationActionEnum::CONNECTION_REQUEST_REJECTED => $this->getConnectionRequestRejectedMetaData($notifiable),
+            NotificationActionEnum::COMMENT_LIKED => $this->getCommentLikedMetaData($notifiable),
+            NotificationActionEnum::COMMENT_REPLIED => $this->getCommentRepliedMetaData($notifiable),
+            NotificationActionEnum::POLL_VOTED => $this->getPollVotedMetaData($notifiable),
+            NotificationActionEnum::POLL_ENDED => $this->getPollEndedMetaData($notifiable),
             default => [],
         };
     }

@@ -4,7 +4,7 @@ namespace App\Modules\SocialMedia\Application\Listeners;
 
 use App\Modules\SocialMedia\Application\Events\NewPostEvent;
 use App\Modules\SocialMedia\Application\Facades\ConnectionFacade;
-use App\Shared\Enums\NotifiableTypeEnum;
+use App\Shared\Enums\NotificationActionEnum;
 use App\Shared\Facades\NotificationFacade;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
@@ -36,11 +36,11 @@ class SendNewPostNotification implements ShouldQueue
 
             // Create the notification message
             $message = "{$user->FullName} has published a new post";
-
+            
             // Create and send the notification with the specific type
             $notification = NotificationFacade::createNotification(
                 $post,
-                NotifiableTypeEnum::POST_CREATED,
+                NotificationActionEnum::POST_CREATED,
                 $message,
                 $connectedUserIds
             );
