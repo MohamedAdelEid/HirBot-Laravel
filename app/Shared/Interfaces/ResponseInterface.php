@@ -12,5 +12,5 @@ interface ResponseInterface
 
     public function paginated(mixed $data, ?string $message = null, int $statusCode = 200): JsonResponse;
 
-    public function cursorPaginated(mixed $data, ?string $message = null, int $statusCode = 200): JsonResponse;
+    public function cursorPaginated(mixed $data, ?array $unreadCounts = null , ?string $message = null, int $statusCode = 200): JsonResponse;
 }

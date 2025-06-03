@@ -138,6 +138,60 @@ class NotificationService
     }
 
     /**
+     * Get unread notification counts by category for a user.
+     *
+     * @param string $userId
+     * @return array
+     */
+    public function getUnreadCountsByCategoies(string $userId , array $types) : array
+    {
+        try {
+            // Initialize counts for all categories
+            $counts = [
+                'post' => 0,
+                'connection' => 0,
+                'comment' => 0,
+                'poll' => 0,
+            ];
+
+            // Get unread counts grouped by notification type
+            $unreadCounts = NotificationReceiver::where('ReciverID', $userId)
+                ->whereNull('read_at')
+                ->whereHas('notification', function (Builder $query) use ($types) {
+                    $query->whereIn('Notifiable_Type', $types);
+                })
+                ->join('Notifications', 'NotificationRecivers.NotificationID', '=', 'Notifications.ID')
+                ->select('Notifications.Notifiable_Type', DB::raw('COUNT(*) as count'))
+                ->groupBy('Notifications.Notifiable_Type')
+                ->get();
+
+            // Map the counts to categories
+            foreach ($unreadCounts as $unreadCount) {
+                $type = NotifiableTypeEnum::tryFrom($unreadCount->Notifiable_Type)->category();
+
+                if (isset($counts[$type])) {
+                    $counts[$type] += $unreadCount->count;
+                }
+            }
+            
+            return $counts;
+        } catch (\Exception $e) {
+            Log::error('Failed to get unread counts by category: ' . $e->getMessage(), [
+                'exception' => $e,
+                'user_id' => $userId,
+            ]);
+
+            // Return default counts on error
+            return [
+                'post' => 0,
+                'connection' => 0,
+                'comment' => 0,
+                'poll' => 0,
+            ];
+        }
+    }
+
+    /**
      * Mark a notification as read.
      *
      * @param int $notificationReceiverId The notification receiver ID

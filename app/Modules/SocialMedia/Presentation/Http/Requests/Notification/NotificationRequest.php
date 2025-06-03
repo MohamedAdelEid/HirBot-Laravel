@@ -11,9 +11,12 @@ use Illuminate\Validation\Rule;
 
 class NotificationRequest extends FormRequest
 {
-    public function __construct(
-        private readonly ApiResponse $response
-    ) {
+
+   private array $socialMediaCategories;
+
+    public function __construct(private readonly ApiResponse $response)
+    {
+        $this->socialMediaCategories = NotifiableTypeEnum::socialMediaCategories();
         parent::__construct();
     }
 
@@ -32,27 +35,12 @@ class NotificationRequest extends FormRequest
      */
     public function rules(): array
     {
-        $socialMediaCategories = NotifiableTypeEnum::socialMediaCategories();
-
         return [
             'after' => 'nullable|date',
             'limit' => 'nullable|integer|min:1|max:100',
             'is_read' => 'nullable|boolean',
-            'type' => [
-                'nullable',
-                'string',
-                function ($attribute, $value, $fail) use ($socialMediaCategories) {
-                    if ($value) {
-                        $types = explode(',', $value);
-                        foreach ($types as $type) {
-                            $type = trim($type);
-                            if (!in_array($type, $socialMediaCategories)) {
-                                $fail("The {$attribute} contains invalid notification type: {$type}. Allowed types: " . implode(', ', $socialMediaCategories));
-                            }
-                        }
-                    }
-                }
-            ],
+            'type' => 'nullable|array',
+            'type.*' => ['string', Rule::in($this->socialMediaCategories)],
             'search' => 'nullable|string|max:255',
         ];
     }
@@ -70,6 +58,7 @@ class NotificationRequest extends FormRequest
             'limit.min' => 'The limit parameter must be at least 1.',
             'limit.max' => 'The limit parameter cannot exceed 100.',
             'is_read.boolean' => 'The is_read parameter must be true or false.',
+            'type.*.in' => 'The selected notification type ":input" is invalid. Allowed types: ' . implode(', ', $this->socialMediaCategories),
             'search.max' => 'The search parameter cannot exceed 255 characters.',
         ];
     }
@@ -94,13 +83,12 @@ class NotificationRequest extends FormRequest
      */
     public function getNotificationTypes(): array
     {
-        $typeString = $this->query('type');
+        $types = $this->input('type', []);
 
-        if (!$typeString) {
+        if (empty($types)) {
             return NotifiableTypeEnum::socialMediaTypes();
         }
 
-        $types = array_map('trim', explode(',', $typeString));
         $categories = [];
 
         foreach ($types as $type) {

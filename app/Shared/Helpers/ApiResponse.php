@@ -78,18 +78,18 @@ class ApiResponse implements ResponseInterface
      * @param int $statusCode
      * @return JsonResponse
      */
-    public function cursorPaginated(mixed $data, ?string $message = 'Success', int $statusCode = 200): JsonResponse
+    public function cursorPaginated(mixed $data, ?array $unreadCounts = null, ?string $message = 'Success', int $statusCode = 200): JsonResponse
     {
         return response()->json([
             'status' => ResponseStatus::SUCCESS->value,
             'message' => $message,
-            'data' => [
+            'data' => array_merge([
                 'data' => $this->transformData($data->items()),
                 'nextPageCursor' => optional($data->last())?->CreationDate?->toIso8601String(),
                 'pageSize' => $data->perPage(),
                 'hasMore' => $data->hasMorePages(),
                 'totalRecords' => $data->total(),
-            ],
+            ], $unreadCounts ? ['unread_count' => $unreadCounts] : []),
             'statusCode' => $statusCode,
         ], $statusCode);
     }

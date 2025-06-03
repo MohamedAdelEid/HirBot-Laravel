@@ -46,12 +46,16 @@ class NotificationController extends Controller
                 $search
             );
 
+            // Get unread counts by category
+            $unreadCounts = NotificationFacade::getUnreadCountsByCategoies(Auth::user()->Id, NotifiableTypeEnum::socialMediaTypes());
+
             // Transform the data
             $resourceCollection = NotificationReceiverResource::collection($notifications);
 
             // Return cursor-paginated response
             return $this->response->cursorPaginated(
-                $resourceCollection ,
+                $resourceCollection,
+                $unreadCounts,
                 'Notifications retrieved successfully'
             );
         } catch (\Exception $e) {
