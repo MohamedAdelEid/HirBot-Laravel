@@ -12,7 +12,7 @@ use Illuminate\Validation\Rule;
 class NotificationRequest extends FormRequest
 {
 
-   private array $socialMediaCategories;
+    private array $socialMediaCategories;
 
     public function __construct(private readonly ApiResponse $response)
     {

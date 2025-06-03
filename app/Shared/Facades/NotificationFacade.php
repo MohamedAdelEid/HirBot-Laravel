@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Facade;
 /**
  * @method static Notification|null createNotification(Model $notifiable, NotificationActionEnum $action, string $message, array|Collection $receiverIds, bool $broadcast = true)
  * @method static LengthAwarePaginator getUserNotifications(GetUserNotificationsDTO $dto)
- * @method static array getUnreadCountsByCategory(string $userId ,array $types = [])
+ * @method static array getUnreadCountsByCategoies(string $userId ,array $types = [])
  * @method static bool markAsRead(int $notificationReceiverId)
  * @method static int markAllAsRead(string $userId, ?array $types = null)
  *

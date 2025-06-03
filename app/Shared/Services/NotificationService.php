@@ -173,7 +173,7 @@ class NotificationService
                     $counts[$type] += $unreadCount->count;
                 }
             }
-            
+
             return $counts;
         } catch (\Exception $e) {
             Log::error('Failed to get unread counts by category: ' . $e->getMessage(), [
