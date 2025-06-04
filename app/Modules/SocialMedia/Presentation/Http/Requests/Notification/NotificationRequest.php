@@ -38,7 +38,7 @@ class NotificationRequest extends FormRequest
         return [
             'after' => 'nullable|date',
             'limit' => 'nullable|integer|min:1|max:100',
-            'is_read' => 'nullable|boolean',
+            'is_read' => 'nullable|in:true,false,1,0',
             'type' => 'nullable|array',
             'type.*' => ['string', Rule::in($this->socialMediaCategories)],
             'search' => 'nullable|string|max:255',
