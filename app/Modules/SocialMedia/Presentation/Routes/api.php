@@ -85,6 +85,7 @@ Route::middleware(['auth', 'role:' . UserRoleEnum::COMPANY->value . ',' . UserRo
             Route::get('/followed-companies',  'getFollowedCompanies')->name('connections.followed-companies');
             Route::get('/pending-detailed', 'getPendingConnectionsDetailed')->name('connections.pending-detailed');
             Route::get('/suggestions',  'getSuggestions')->name('connections.suggestions');
+            Route::get('/company-suggestions',  'getSuggestionsCompanies')->name('companies.suggestions');
         });
     });
 

@@ -39,7 +39,7 @@ class Experience extends Model
     {
         return $query->where(function ($q) {
             $q->whereNull('End_Date')
-            ->orWhere('IsStill', true)
+            ->orWhere('IsStill', 1)
             ->orWhere('End_Date', '>', now());
         });
     }

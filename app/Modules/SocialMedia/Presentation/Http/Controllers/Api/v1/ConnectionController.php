@@ -6,13 +6,16 @@ use App\Modules\SocialMedia\Application\Exceptions\Connection\ConnectionExistsEx
 use App\Modules\SocialMedia\Application\Exceptions\Connection\ConnectionRequestAlreadyProcessedException;
 use App\Modules\SocialMedia\Application\Exceptions\Connection\SelfConnectionException;
 use App\Modules\SocialMedia\Application\Exceptions\Connection\UnauthorizedConnectionRequestException;
+use App\Modules\SocialMedia\Application\Facades\CompanySuggestionFacade;
 use App\Modules\SocialMedia\Application\Facades\ConnectionFacade;
 use App\Modules\SocialMedia\Application\Facades\ConnectionSuggestionFacade;
 use App\Modules\SocialMedia\Presentation\Http\Requests\Connection\CompanySearchRequest;
+use App\Modules\SocialMedia\Presentation\Http\Requests\Connection\CompanySuggestionRequest;
 use App\Modules\SocialMedia\Presentation\Http\Requests\Connection\ConnectionSearchRequest;
 use App\Modules\SocialMedia\Presentation\Http\Requests\Connection\ConnectionSuggestionRequest;
 use App\Modules\SocialMedia\Presentation\Http\Requests\Connection\SendConnectionRequest;
 use App\Modules\SocialMedia\Presentation\Http\Requests\Connection\ProcessConnectionRequest;
+use App\Modules\SocialMedia\Presentation\Http\Resources\Connection\CompanySuggestionResource;
 use App\Modules\SocialMedia\Presentation\Http\Resources\Connection\ConnectedUserResource;
 use App\Modules\SocialMedia\Presentation\Http\Resources\Connection\ConnectionResource;
 use App\Modules\SocialMedia\Presentation\Http\Resources\Connection\ConnectionSuggestionResource;
@@ -240,6 +243,30 @@ class ConnectionController extends Controller
             );
         } catch (\Exception $e) {
             return $this->response->error('Error retrieving connection suggestions', $e->getMessage());
+        }
+    }
+
+        /**
+     * Get company suggestions for the authenticated user
+     */
+    public function getSuggestionsCompanies(CompanySuggestionRequest $request): JsonResponse
+    {
+        try {
+            $suggestions = CompanySuggestionFacade::getSuggestions(
+                page: $request->input('page', 1),
+                perPage: min($request->input('per_page', 15), 50), // Max 50 per page
+                industry: $request->input('industry'),
+                location: $request->input('location'),
+                minScore: $request->input('min_score')
+            );
+            
+            return $this->response->paginated(
+                CompanySuggestionResource::collection($suggestions),
+                'Company suggestions retrieved successfully'
+            );
+
+        } catch (\Exception $e) {
+            return $this->response->error('Error retrieving company suggestions', $e->getMessage());
         }
     }
 }

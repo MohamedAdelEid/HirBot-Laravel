@@ -2,6 +2,8 @@
 
 namespace App\Shared\Models;
 
+use App\Modules\SocialMedia\Domain\Enums\Connection\ConnectionStatusEnum;
+use App\Modules\SocialMedia\Domain\Enums\Connection\ConnectionTypeEnum;
 use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\ConnectionModel;
 use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\InteractionModel;
 use App\Shared\Enums\UserRoleEnum;
@@ -109,6 +111,48 @@ class User extends Authenticatable
     }
 
     /**
+     * Users that this user is following
+     */
+    public function following(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'connections', 'requester_id', 'receiver_id')
+            ->where('type', ConnectionTypeEnum::FOLLOW)
+            ->where('status', ConnectionStatusEnum::ACCEPTED);
+    }
+
+    /**
+     * Users that are following this user
+     */
+    public function followers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'connections', 'receiver_id', 'requester_id')
+            ->where('type', ConnectionTypeEnum::FOLLOW)
+            ->where('status', ConnectionStatusEnum::ACCEPTED);
+    }
+
+    /**
+     * All follow relationships for this user
+     */
+    public function allFollows(): HasMany
+    {
+        return $this->hasMany(ConnectionModel::class, 'requester_id')
+            ->orWhere('receiver_id', $this->Id)
+            ->where('type', ConnectionTypeEnum::FOLLOW)
+            ->where('status', ConnectionStatusEnum::ACCEPTED);
+    }
+
+    /**
+     * Companies that this user follows
+     */
+    public function followedCompanies(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'connections', 'requester_id', 'receiver_id')
+            ->where('type', ConnectionTypeEnum::FOLLOW)
+            ->where('status', ConnectionStatusEnum::ACCEPTED)
+            ->whereHas('company'); // Only users who have companies
+    }
+
+    /**
      * Get the user's company information.
      */
     public function company(): HasOne
@@ -145,5 +189,25 @@ class User extends Authenticatable
     public function currentExperience(): HasOne
     {
         return $this->hasOne(Experience::class, 'ID', 'CurentJopID')->where('IsStill', true);
+    }
+
+    /**
+     * Scope to get users with connections working at a specific company
+     */
+    public function scopeConnectedToCompany($query, $companyId, $userId)
+    {
+        return $query->whereHas('experiences', function ($expQuery) use ($companyId) {
+                $expQuery->where('CompanyID', $companyId)->currentlyWorking();
+            })
+            ->whereHas('requestedConnections', function ($connQuery) use ($userId) {
+                $connQuery->where('receiver_id', $userId)
+                    ->where('type', ConnectionTypeEnum::CONNECTION)
+                    ->where('status', ConnectionStatusEnum::ACCEPTED);
+            })
+            ->orWhereHas('receivedConnections', function ($connQuery) use ($userId) {
+                $connQuery->where('requester_id', $userId)
+                    ->where('type', ConnectionTypeEnum::CONNECTION)
+                    ->where('status', ConnectionStatusEnum::ACCEPTED);
+            });
     }
 }
