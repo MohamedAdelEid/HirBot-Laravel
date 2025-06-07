@@ -8,6 +8,7 @@ use App\Modules\SocialMedia\Application\Exceptions\Connection\ConnectionRequestA
 use App\Modules\SocialMedia\Application\Exceptions\Connection\SelfConnectionException;
 use App\Modules\SocialMedia\Application\Exceptions\Connection\UnauthorizedConnectionRequestException;
 use App\Modules\SocialMedia\Domain\Entities\Connection;
+use App\Modules\SocialMedia\Domain\Enums\Connection\ConnectionRoleEnum;
 use App\Modules\SocialMedia\Domain\Enums\Connection\ConnectionStatusEnum;
 use App\Modules\SocialMedia\Domain\Enums\Connection\ConnectionTypeEnum;
 use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\ConnectionModel;
@@ -377,44 +378,43 @@ class ConnectionService
      * @param int $perPage
      * @return LengthAwarePaginator
      */
-    public function getPendingConnectionsDetailed(string $userId, int $perPage = 15): LengthAwarePaginator
+    public function getPendingConnectionsDetailed(string $userId, ConnectionRoleEnum $role = ConnectionRoleEnum::RECEIVER, int $perPage = 15): LengthAwarePaginator
     {
-        // Get pending connection requests
-        $pendingConnections = ConnectionModel::where('receiver_id', $userId)
+        $column = $role === ConnectionRoleEnum::REQUESTER ? 'requester_id' : 'receiver_id';
+        $relation = $role === ConnectionRoleEnum::REQUESTER ? ConnectionRoleEnum::RECEIVER->value : ConnectionRoleEnum::REQUESTER->value;
+
+        $pendingConnections = ConnectionModel::where($column, $userId)
             ->where('status', ConnectionStatusEnum::PENDING)
-            ->with(['requester' => function($query) {
+            ->with([$relation => function($query) {
                 $query->with(['currentExperience' => function($q) {
                     $q->with('company')->currentlyWorking();
                 }, 'skills']);
             }])
             ->paginate($perPage);
 
-        // For each pending connection, get the matching skills and mutual connections
         foreach ($pendingConnections as $connection) {
 
-            // Get the requester's , currentUser skills IDs
-            $requesterSkills = $connection->requester->skills->pluck('ID')->toArray();
-            $currentUserSkills = User::find($userId)->skills->pluck('ID')->toArray();
+            $otherUserId = $role === ConnectionRoleEnum::REQUESTER ? $connection->receiver_id : $connection->requester_id;
 
-            // Find matching skills
-            $matchingSkillIds = array_intersect($requesterSkills, $currentUserSkills);
+            // Get skills
+            $otherUserSkills = User::find($otherUserId)?->skills->pluck('ID')->toArray() ?? [];
+            $currentUserSkills = User::find($userId)?->skills->pluck('ID')->toArray() ?? [];
 
-            // Load the matching skills with their pivot data
+            $matchingSkillIds = array_intersect($otherUserSkills, $currentUserSkills);
             $matchingSkills = Skill::whereIn('ID', $matchingSkillIds)->get();
 
             $connection->matchingSkills = $matchingSkills;
 
-            // Get mutual connections
-            $mutualConnections = $this->getMutualConnections($userId, $connection->requester_id);
+            $mutualConnections = $this->getMutualConnections($userId, $otherUserId);
             $connection->mutualConnections = $mutualConnections;
 
-            // Check if the requester works for a company the current user follows
-            $worksForFollowedCompany = $this->worksForFollowedCompany($userId, $connection->requester_id);
+            $worksForFollowedCompany = $this->worksForFollowedCompany($userId, $otherUserId);
             $connection->worksForFollowedCompany = $worksForFollowedCompany;
         }
 
         return $pendingConnections;
     }
+
 
     /**
      * Get three mutual connections between two users
@@ -431,6 +431,7 @@ class ConnectionService
                   ->orWhere('receiver_id', $userId1);
             })
             ->where('status', ConnectionStatusEnum::ACCEPTED)
+            ->where('type' , ConnectionTypeEnum::CONNECTION)
             ->get()
             ->map(function($connection) use ($userId1) {
                 return $connection->requester_id == $userId1
@@ -444,6 +445,7 @@ class ConnectionService
                   ->orWhere('receiver_id', $userId2);
             })
             ->where('status', ConnectionStatusEnum::ACCEPTED)
+            ->where('type' , ConnectionTypeEnum::CONNECTION)
             ->get()
             ->map(function($connection) use ($userId2) {
                 return $connection->requester_id == $userId2

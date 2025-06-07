@@ -9,6 +9,7 @@ use App\Modules\SocialMedia\Application\Exceptions\Connection\UnauthorizedConnec
 use App\Modules\SocialMedia\Application\Facades\CompanySuggestionFacade;
 use App\Modules\SocialMedia\Application\Facades\ConnectionFacade;
 use App\Modules\SocialMedia\Application\Facades\ConnectionSuggestionFacade;
+use App\Modules\SocialMedia\Domain\Enums\Connection\ConnectionRoleEnum;
 use App\Modules\SocialMedia\Presentation\Http\Requests\Connection\CompanySearchRequest;
 use App\Modules\SocialMedia\Presentation\Http\Requests\Connection\CompanySuggestionRequest;
 use App\Modules\SocialMedia\Presentation\Http\Requests\Connection\ConnectionSearchRequest;
@@ -212,12 +213,35 @@ class ConnectionController extends Controller
             $userId = Auth::user()->Id;
             $perPage = $request->input('per_page', 15);
 
-            $pendingConnections = ConnectionFacade::getPendingConnectionsDetailed($userId, $perPage);
+            $pendingConnections = ConnectionFacade::getPendingConnectionsDetailed($userId,ConnectionRoleEnum::RECEIVER , $perPage);
 
             return $this->response->paginated(
                 PendingConnectionResource::collection($pendingConnections),
-                'Pending connection requests retrieved successfully'
+                'Pending connection receives retrieved successfully'
             );
+        } catch (\Exception $e) {
+            return $this->response->error('Error retrieving pending connection receives', $e->getMessage());
+        }
+    }
+
+    public function getPendingRequestConnectionsDetailed(Request $request): JsonResponse
+    {
+        try {
+            $userId = Auth::user()->Id;
+            $perPage = $request->input('per_page', 15);
+
+            $pendingRequester = ConnectionFacade::getPendingConnectionsDetailed($userId,ConnectionRoleEnum::REQUESTER , $perPage);
+
+            $transformed = $pendingRequester->getCollection()->map(function ($item) {
+                return new PendingConnectionResource($item, ConnectionRoleEnum::REQUESTER->value);
+            });
+
+            $pendingRequester->setCollection($transformed);
+
+            return $this->response->paginated(
+                $pendingRequester,
+                'Pending connection requests retrieved successfully'
+                );
         } catch (\Exception $e) {
             return $this->response->error('Error retrieving pending connection requests', $e->getMessage());
         }
@@ -254,12 +278,12 @@ class ConnectionController extends Controller
         try {
             $suggestions = CompanySuggestionFacade::getSuggestions(
                 page: $request->input('page', 1),
-                perPage: min($request->input('per_page', 15), 50), // Max 50 per page
+                perPage: min($request->input('per_page', 15), 50),
                 industry: $request->input('industry'),
                 location: $request->input('location'),
                 minScore: $request->input('min_score')
             );
-            
+
             return $this->response->paginated(
                 CompanySuggestionResource::collection($suggestions),
                 'Company suggestions retrieved successfully'

@@ -7,16 +7,23 @@ use Illuminate\Support\Facades\Auth;
 
 class PendingConnectionResource extends JsonResource
 {
+    protected string $role;
+
+    public function __construct($resource, string $role = 'receiver')
+    {
+        parent::__construct($resource);
+        $this->role = $role;
+    }
     /**
      * Transform the resource into an array.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
-    public function toArray($request)
+        public function toArray($request)
     {
-        $user = $this->requester;
-        // dump($user->portfolio->Title);
+        $user = $this->role === 'requester' ? $this->receiver : $this->requester;
+
         return [
             'id' => $this->id,
             'user' => [

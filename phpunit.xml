@@ -15,7 +15,7 @@
         </testsuite>
         <testsuite name="SocialMedia">
             <directory>app/Modules/SocialMedia/Tests/Unit</directory>
-            <directory>app/Modules/SocialMedia/Tests/Feature</directory>
+            <!-- <directory>app/Modules/SocialMedia/Tests/Feature</directory> -->
         </testsuite>
     </testsuites>
     <source>

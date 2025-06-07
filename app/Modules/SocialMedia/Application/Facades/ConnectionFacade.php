@@ -52,11 +52,6 @@ class ConnectionFacade extends Facade
         );
     }
 
-    public static function getPendingConnectionRequests(string $userId)
-    {
-        return static::getFacadeRoot()->getPendingConnectionRequests($userId);
-    }
-
     public static function getUserConnections(string $userId, ?string $status = null, ?string $type = null)
     {
         return static::getFacadeRoot()->getUserConnections($userId, $status, $type);
