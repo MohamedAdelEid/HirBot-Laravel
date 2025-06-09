@@ -12,7 +12,7 @@ trait PostValidationRules
     protected function getCreatePostRules(): array
     {
         return [
-            'content' => 'required|string|max:1000',
+            'content' => 'required|string|max:10000',
             'privacy_comments' => ['required', Rule::in(PrivacyCommentsEnum::values())],
             'visibility' => ['required', Rule::in(PostVisibilityEnum::values())],
             ...$this->getCommonRules(),
