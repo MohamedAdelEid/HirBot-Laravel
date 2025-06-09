@@ -22,7 +22,7 @@ trait PostValidationRules
     protected function getUpdatePostRules(): array
     {
         return [
-            'content' => 'sometimes|string|max:1000',
+            'content' => 'sometimes|string|max:10000',
             'privacy_comments' => ['sometimes', Rule::in(PrivacyCommentsEnum::values())],
             'visibility' => ['sometimes', Rule::in(PostVisibilityEnum::values())],
             'media_to_delete' => 'sometimes|array',
