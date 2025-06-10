@@ -5,6 +5,7 @@ use App\Modules\SocialMedia\Presentation\Http\Controllers\Api\v1\ConnectionContr
 use App\Modules\SocialMedia\Presentation\Http\Controllers\Api\v1\FeedController;
 use App\Modules\SocialMedia\Presentation\Http\Controllers\Api\v1\NotificationController;
 use App\Modules\SocialMedia\Presentation\Http\Controllers\Api\v1\PostController;
+use App\Modules\SocialMedia\Presentation\Http\Controllers\Api\v1\SearchController;
 use App\Shared\Enums\UserRoleEnum;
 use Illuminate\Support\Facades\Route;
 
@@ -114,6 +115,8 @@ Route::middleware(['auth', 'role:' . UserRoleEnum::COMPANY->value . ',' . UserRo
         });
 
         Broadcast::routes();
+
+        Route::get('/search', [SearchController::class, 'search'])->name('search');
     });
 
 /*

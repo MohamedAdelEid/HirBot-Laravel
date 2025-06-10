@@ -33,7 +33,6 @@ class FeedController extends Controller
             // Record views if it's not just a refresh
             if (!($request->input('doFeedRefresh', false))) {
                 foreach ($posts as $post) {
-                    // dump($post);
                     PostViewFacade::recordView(Auth::user()->Id, $post->id);
                 }
             }
