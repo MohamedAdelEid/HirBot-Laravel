@@ -7,6 +7,7 @@ use App\Modules\SocialMedia\Domain\Enums\Connection\ConnectionTypeEnum;
 use App\Modules\SocialMedia\Domain\Enums\Search\SearchTypeEnum;
 use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\ConnectionModel;
 use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\PostModel;
+use App\Shared\Enums\UserRoleEnum;
 use App\Shared\Models\Company;
 use App\Shared\Models\User;
 // use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -198,6 +199,7 @@ class SearchService
     protected function buildUserQuery(string $query): Builder
     {
         return User::query()
+            ->where('role',UserRoleEnum::USER->value)
             ->with(['portfolio', 'currentExperience.company.user', 'skills'])
             ->where('Id', '!=', $this->currentUser->Id)
             ->where(function ($q) use ($query) {
