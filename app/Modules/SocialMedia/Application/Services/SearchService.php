@@ -2,6 +2,7 @@
 
 namespace App\Modules\SocialMedia\Application\Services;
 
+use App\Modules\SocialMedia\Application\Facades\ConnectionFacade;
 use App\Modules\SocialMedia\Domain\Enums\Connection\ConnectionStatusEnum;
 use App\Modules\SocialMedia\Domain\Enums\Connection\ConnectionTypeEnum;
 use App\Modules\SocialMedia\Domain\Enums\Search\SearchTypeEnum;
@@ -283,15 +284,16 @@ class SearchService
     protected function transformUserResults(LengthAwarePaginator $paginatedUsers, string $query): LengthAwarePaginator
     {
         $userIds = $paginatedUsers->pluck('Id')->toArray();
-        $connections = $this->getConnectionStatuses($userIds);
+        // Get connected user IDs
+        $connectedUserIds = ConnectionFacade::getConnectedUserIds($this->currentUser->Id);
 
-        $paginatedUsers->getCollection()->transform(function ($user) use ($query, $connections) {
+        $paginatedUsers->getCollection()->transform(function ($user) use ($query, $connectedUserIds) {
             // Create a stdClass object that the resource can access
             $searchResult = new \stdClass();
             $searchResult->type = SearchTypeEnum::USER->value;
             $searchResult->id = $user->Id;
             $searchResult->data = $user;
-            $searchResult->isConnected = in_array($user->Id, $connections);
+            $searchResult->isConnected = in_array($user->Id, $connectedUserIds);
             $searchResult->relevance_score = $this->calculateUserRelevanceScore($user, $query);
             $searchResult->match_type = $this->getUserMatchType($user, $query);
 
