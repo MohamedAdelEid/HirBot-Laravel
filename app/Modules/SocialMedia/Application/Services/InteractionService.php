@@ -4,6 +4,7 @@ namespace App\Modules\SocialMedia\Application\Services;
 
 use App\Modules\SocialMedia\Application\DTOs\Interaction\CreateInteractionDTO;
 use App\Modules\SocialMedia\Application\Events\DeleteInteractionEvent;
+use App\Modules\SocialMedia\Application\Events\InteractionAddedEvent;
 use App\Modules\SocialMedia\Application\Events\NewInteractionEvent;
 use App\Modules\SocialMedia\Domain\Entities\Interaction;
 use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\InteractionModel;
@@ -61,6 +62,9 @@ class InteractionService
 
             // Broadcast the updated counts with interaction data
             event(new NewInteractionEvent($interaction));
+
+            // Dispatch notification event
+            event(new InteractionAddedEvent($interaction));
 
             DB::commit();
 

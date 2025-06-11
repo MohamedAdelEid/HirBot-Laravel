@@ -60,6 +60,9 @@ class NotificationReceiverResource extends JsonResource
             NotificationActionEnum::COMMENT_REPLIED => $this->getCommentRepliedMetaData($notifiable),
             NotificationActionEnum::POLL_VOTED => $this->getPollVotedMetaData($notifiable),
             NotificationActionEnum::POLL_ENDED => $this->getPollEndedMetaData($notifiable),
+            // New notification types
+            NotificationActionEnum::COMMENT_CREATED => $this->getCommentCreatedMetaData($notifiable),
+            NotificationActionEnum::INTERACTION_ADDED => $this->getInteractionAddedMetaData($notifiable),
             default => [],
         };
     }
@@ -335,6 +338,61 @@ class NotificationReceiverResource extends JsonResource
                 'id' => $poll->post->id,
                 'content' => $poll->post->content ? substr($poll->post->content, 0, 100) . (strlen($poll->post->content) > 100 ? '...' : '') : null,
             ],
+        ];
+    }
+
+    /**
+     * Get meta data for comment created notification.
+     *
+     * @param mixed $comment
+     * @return array
+     */
+    private function getCommentCreatedMetaData($comment): array
+    {
+        return [
+            'comment' => [
+                'id' => $comment->id,
+                'content' => substr($comment->content, 0, 100) . (strlen($comment->content) > 100 ? '...' : ''),
+                'has_media' => $comment->media && $comment->media->count() > 0,
+                'media_count' => $comment->media ? $comment->media->count() : 0,
+            ],
+            'post' => [
+                'id' => $comment->post->id,
+                'content' => $comment->post->content ? substr($comment->post->content, 0, 100) . (strlen($comment->post->content) > 100 ? '...' : '') : null,
+            ],
+            'commenter' => [
+                'id' => $comment->user->Id,
+                'name' => $comment->user->FullName,
+                'username' => $comment->user->UserName,
+                'profile_image' => $comment->user->ImagePath,
+            ],
+        ];
+    }
+
+    /**
+     * Get meta data for interaction added notification.
+     *
+     * @param mixed $interaction
+     * @return array
+     */
+    private function getInteractionAddedMetaData($interaction): array
+    {
+        return [
+            'interaction' => [
+                'id' => $interaction->id,
+                'type' => $interaction->type,
+            ],
+            'post' => [
+                'id' => $interaction->interactable_id,
+                'content' => $interaction->interactable->content ? substr($interaction->interactable->content, 0, 100) . (strlen($interaction->interactable->content) > 100 ? '...' : '') : null,
+            ],
+            'interactor' => [
+                'id' => $interaction->user->Id,
+                'name' => $interaction->user->FullName,
+                'username' => $interaction->user->UserName,
+                'profile_image' => $interaction->user->ImagePath,
+            ],
+            'total_interactions' => $interaction->interactable->interactions()->where('type', $interaction->type)->count(),
         ];
     }
 }

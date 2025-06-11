@@ -3,6 +3,7 @@
 namespace App\Modules\SocialMedia\Application\Services;
 
 use App\Modules\SocialMedia\Application\DTOs\Comment\CreateCommentDTO;
+use App\Modules\SocialMedia\Application\Events\CommentCreatedEvent;
 use App\Modules\SocialMedia\Domain\Entities\Comment;
 use App\Modules\SocialMedia\Application\Events\NewCommentEvent;
 use App\Modules\SocialMedia\Infrastructure\Persistence\Eloquent\Models\CommentModel;
@@ -70,6 +71,9 @@ class CommentService
 
             // Broadcast the new comment event
             event(new NewCommentEvent($comment));
+
+            // Dispatch notification event
+            event(new CommentCreatedEvent($comment));
 
             DB::commit();
 

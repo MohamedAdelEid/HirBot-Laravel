@@ -2,6 +2,9 @@
 
 namespace App\Modules\SocialMedia\Application\Services;
 
+use App\Modules\SocialMedia\Application\Events\ConnectionRequestAcceptedEvent;
+use App\Modules\SocialMedia\Application\Events\ConnectionRequestRejectedEvent;
+use App\Modules\SocialMedia\Application\Events\ConnectionRequestSentEvent;
 use App\Modules\SocialMedia\Application\Events\NewConnectionRequest;
 use App\Modules\SocialMedia\Application\Exceptions\Connection\ConnectionExistsException;
 use App\Modules\SocialMedia\Application\Exceptions\Connection\ConnectionRequestAlreadyProcessedException;
@@ -94,6 +97,9 @@ class ConnectionService
 
             event(new NewConnectionRequest($connection));
 
+            // Dispatch notification event
+            event(new ConnectionRequestSentEvent($connection));
+
             DB::commit();
 
             return $connection;
@@ -141,6 +147,9 @@ class ConnectionService
             $connection = $this->repository->update($connectionId, $connectionEntity->toArray());
             $connection->load(['requester', 'receiver']);
 
+            // Dispatch notification event
+            event(new ConnectionRequestAcceptedEvent($connection));
+
             DB::commit();
 
             return $connection;
@@ -176,6 +185,9 @@ class ConnectionService
             // if ($connection->status !== ConnectionStatusEnum::PENDING) {
             //     throw new ConnectionRequestAlreadyProcessedException();
             // }
+
+            // Dispatch notification event before deletion
+            event(new ConnectionRequestRejectedEvent($connection));
 
             $connection = $this->repository->delete($connectionId);
 

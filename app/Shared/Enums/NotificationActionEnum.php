@@ -15,9 +15,13 @@ enum NotificationActionEnum: int
     case CONNECTION_REQUEST_ACCEPTED = 202;
     case CONNECTION_REQUEST_REJECTED = 203;
 
+    case INTERACTION_ADDED = 204;
+
     // Comment actions
     case COMMENT_LIKED = 301;
     case COMMENT_REPLIED = 302;
+    case COMMENT_CREATED = 303;
+
 
     // Poll actions
     case POLL_VOTED = 401;
